@@ -1,3 +1,4 @@
+import * as Icons from "react-icons/fi";
 import { FiLoader } from "react-icons/fi";
 
 export default function Button({
@@ -8,8 +9,8 @@ export default function Button({
   disabled = false,
   loading = false,
   size = "md", // sm | md | lg
-  startIcon: StartIcon,
-  endIcon: EndIcon,
+  startIcon,
+  endIcon,
   className = "",
 }) {
   const baseStyles =
@@ -29,6 +30,11 @@ export default function Button({
 
   const disabledStyles = "bg-gray-300 text-white cursor-not-allowed";
   const isDisabled = disabled || loading;
+
+  // 🔄 Если передали строку (например: "FiUser") — пробуем достать иконку из Icons
+  const StartIcon =
+    typeof startIcon === "string" ? Icons[startIcon] : startIcon;
+  const EndIcon = typeof endIcon === "string" ? Icons[endIcon] : endIcon;
 
   return (
     <button
