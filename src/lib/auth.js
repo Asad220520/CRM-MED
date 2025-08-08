@@ -1,3 +1,16 @@
+// Получаем текущую роль из localStorage
 export function getCurrentUserRole() {
-  return localStorage.getItem("role") || "reception";
+  return localStorage.getItem("role") || null;
+}
+
+// Проверяем авторизацию — есть ли access токен
+export function isAuthenticated() {
+  return Boolean(localStorage.getItem("access"));
+}
+
+// Очищаем данные при логауте
+export function logout() {
+  localStorage.removeItem("access");
+  localStorage.removeItem("refresh");
+  localStorage.removeItem("role");
 }
