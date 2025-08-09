@@ -26,6 +26,7 @@ export default function PatientList() {
   const [search, setSearch] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [doctorFilter, setDoctorFilter] = useState("");
+  console.log(records);
 
   // --- Загрузка пациентов по отделению ---
   const getPatients = async (departmentId) => {
@@ -128,39 +129,50 @@ export default function PatientList() {
 
       {/* Таблица пациентов */}
       <div className="overflow-x-auto overflow-y-auto max-h-[360px]">
-  <table className="w-full border-collapse">
-    <thead>
-      <tr className="bg-gray-100 sticky top-0 z-10">
-        <th scope="col" className="text-left p-3">Дата и время</th>
-        <th scope="col" className="text-left p-3">Пациент</th>
-        <th scope="col" className="text-left p-3">Врач</th>
-        <th scope="col" className="text-left p-3">Способ оплаты</th>
-        <th scope="col" className="text-right p-3">Сумма оплаты</th>
-        <th scope="col" className="p-3"></th>
-      </tr>
-    </thead>
-    <tbody>
-      {filteredRecords.map((rec) => (
-        <tr key={rec.id} className="border-b hover:bg-gray-50">
-          <td className="p-3">{rec.appointment_date}</td>
-          <td className="p-3">{rec.name}</td>
-          <td className="p-3">{rec.doctor.username}</td>
-          <td className="p-3 flex items-center">
-            <span
-              className={`w-3 h-3 rounded-full mr-2 ${
-                paymentTypes[rec.payment_type_display]?.color || "bg-gray-400"
-              }`}
-            ></span>
-            {paymentTypes[rec.payment_type_display]?.label || rec.payment_type_display}
-          </td>
-          <td className="p-3 text-right">{rec.price} c</td>
-          <td className="p-3 text-xl cursor-pointer select-none">⋮</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100 sticky top-0 z-10">
+              <th scope="col" className="text-left p-3">
+                Дата и время
+              </th>
+              <th scope="col" className="text-left p-3">
+                Пациент
+              </th>
+              <th scope="col" className="text-left p-3">
+                Врач
+              </th>
+              <th scope="col" className="text-left p-3">
+                Способ оплаты
+              </th>
+              <th scope="col" className="text-right p-3">
+                Сумма оплаты
+              </th>
+              <th scope="col" className="p-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredRecords.map((rec) => (
+              <tr key={rec.id} className="border-b hover:bg-gray-50">
+                <td className="p-3">{rec.appointment_date}</td>
+                <td className="p-3">{rec.name}</td>
+                <td className="p-3">{rec.doctor.username}</td>
+                <td className="p-3 flex items-center">
+                  <span
+                    className={`w-3 h-3 rounded-full mr-2 ${
+                      paymentTypes[rec.payment_type_display]?.color ||
+                      "bg-gray-400"
+                    }`}
+                  ></span>
+                  {paymentTypes[rec.payment_type_display]?.label ||
+                    rec.payment_type_display}
+                </td>
+                <td className="p-3 text-right">{rec.price} c</td>
+                <td className="p-3 text-xl cursor-pointer select-none">⋮</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
