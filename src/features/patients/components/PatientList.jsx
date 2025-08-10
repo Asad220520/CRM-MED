@@ -157,7 +157,7 @@ export default function PatientList() {
   };
 
   return (
-    <div>
+    <div className="">
       {/* Фильтры */}
       <div className="flex flex-wrap gap-3 mb-4">
         <input
@@ -188,24 +188,38 @@ export default function PatientList() {
       </div>
 
       {/* Вкладки отделений */}
-      <div className="flex flex-wrap gap-3 mb-4 border-b">
-        {departments.map((dept) => (
-          <button
-            key={dept.id}
-            className={`pb-2 ${
-              dept.id === activeDept.id
-                ? "border-b-2 border-blue-600 font-semibold"
-                : "text-gray-500"
-            }`}
-            onClick={() => setActiveDept(dept)}
-          >
-            {dept.name}
-          </button>
-        ))}
+      <div
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+        className="overflow-x-auto w-[1000px]"
+      >
+        <div className="flex w-max mb-4">
+          {departments.map((dept) => (
+            <button
+              key={dept.id}
+              className={`pb-2 px-4 whitespace-nowrap ${
+                dept.id === activeDept.id
+                  ? "border-b-4 border-blue-600 font-semibold text-blue-600"
+                  : "border-b-4 border-gray-100 text-gray-500"
+              }`}
+              onClick={() => setActiveDept(dept)}
+            >
+              {dept.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Таблица пациентов */}
-      <div className="overflow-x-auto overflow-y-auto max-h-[360px]">
+      <div
+        style={{
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+        className="overflow-x-auto overflow-y-auto max-h-[360px]"
+      >
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100 sticky top-0 z-10">

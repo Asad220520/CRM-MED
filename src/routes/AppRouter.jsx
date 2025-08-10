@@ -20,7 +20,7 @@ import Login from "../features/auth/LoginPage";
 import WelcomePage from "../pages/WelcomePage";
 import AddPatientForm from "../features/patients/addPatients/AddPatients";
 import DoctorCreatePage from "../features/doctors/pages/DoctorCreatePage";
-import EditPatientPage from "../features/patients/pages/EditPatientPage";
+import EditPatientPage from "../features/patients/pages/PatientTabs";
 
 function AppRouter() {
   return (

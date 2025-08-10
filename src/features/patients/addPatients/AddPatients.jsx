@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import fetchWithAuth from "../../auth/fetchWithAuth";
 import API_BASE_URL from "../../../../config/api";
+import Button from "../../../components/ui/Button";
+import { useNavigate } from "react-router-dom";
+import { FaAngleLeft } from "react-icons/fa";
+import { FiChevronLeft } from "react-icons/fi";
 
 export default function AddPatientForm() {
   const {
@@ -11,13 +15,13 @@ export default function AddPatientForm() {
     setValue,
     formState: { errors },
   } = useForm();
-
+  const nav = useNavigate();
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [services, setServices] = useState([]);
   const [registrars] = useState([
-    { id:252, name: "Артем Исанов" },
+    { id: 252, name: "Артем Исанов" },
     // Добавь других регистраторов с уникальными числовыми id
   ]);
   const [loading, setLoading] = useState(true);
@@ -112,13 +116,12 @@ export default function AddPatientForm() {
     </option>
   ));
 
-const statusOptions = [
-  { value: "pre-registration", label: "Предзапись" },
-  { value: "waiting", label: "Живая очередь" },
-  { value: "had an appointment", label: "Был на приёме" },
-  { value: "canceled", label: "Отменённые" },
-];
-
+  const statusOptions = [
+    { value: "pre-registration", label: "Предзапись" },
+    { value: "waiting", label: "Живая очередь" },
+    { value: "had an appointment", label: "Был на приёме" },
+    { value: "canceled", label: "Отменённые" },
+  ];
 
   const paymentOptions = [
     { value: "cash", label: "Наличные" },
@@ -164,8 +167,8 @@ const statusOptions = [
       alert("Ошибка: " + err.message);
     }
   };
-  const [data ,setData] = useState([])
- useEffect(() => {
+  const [data, setData] = useState([]);
+  useEffect(() => {
     async function fetData() {
       try {
         const res = await fetchWithAuth(
@@ -181,18 +184,23 @@ const statusOptions = [
     fetData();
   }, []);
   console.log(data);
-  
+
   if (loading) return <p>Загрузка данных...</p>;
   if (error) return <p>Ошибка: {error}</p>;
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-white p-6 rounded-xl shadow border space-y-6 max-w-4xl mx-auto"
+      className="bg-white  h-[85vh] py-6 px-30 rounded-xl shadow  space-y-6  shadow-[1px_1px_6px_2px_rgba(128,128,128,0.5)]"
     >
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Записи клиентов</h2>
-        <h2 className="text-xl font-semibold">Добавить пациента</h2>
+      <div className="flex items-center gap-50">
+        <div className="flex items-end gap-1">
+          <FiChevronLeft size={26} />
+          <h2 className=" text-xl p-0 text-left font-semibold ">
+            Записи клиентов
+          </h2>
+        </div>
+        <h2 className="text-xl text-center font-semibold">Добавить пациента</h2>
       </div>
 
       <div className="grid grid-cols-3 gap-6">
@@ -373,26 +381,22 @@ const statusOptions = [
             {...register("time", { required: true })}
             className="border border-gray-300 rounded px-3 py-2 w-full"
           />
-          {errors.time && (
-            <p className="text-red-600 text-sm">Введите время</p>
-          )}
+          {errors.time && <p className="text-red-600 text-sm">Введите время</p>}
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 pt-4">
-        <button
+      <div className="flex gap-10 w-[500px] gap-4 pt-4">
+        <Button
+          className="w-full"
+          variant="outline"
           type="button"
-          className="border border-gray-400 rounded px-4 py-2 hover:bg-gray-100"
-          onClick={() => alert("Назад")}
+          onClick={() => nav(-1)}
         >
           Назад
-        </button>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700"
-        >
+        </Button>
+        <Button className="w-full" type="submit">
           Далее
-        </button>
+        </Button>
       </div>
     </form>
   );
