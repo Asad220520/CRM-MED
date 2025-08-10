@@ -20,6 +20,7 @@ import Login from "../features/auth/LoginPage";
 import WelcomePage from "../pages/WelcomePage";
 import AddPatientForm from "../features/patients/addPatients/AddPatients";
 import DoctorCreatePage from "../features/doctors/pages/DoctorCreatePage";
+import EditPatientPage from "../features/patients/pages/EditPatientPage";
 
 function AppRouter() {
   return (
@@ -56,6 +57,16 @@ function AppRouter() {
           element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
               <AddPatientForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/editPasient/:editId"
+          element={
+            <ProtectedRoute
+              allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION, ROLES.DOCTOR]}
+            >
+              <EditPatientPage />
             </ProtectedRoute>
           }
         />
