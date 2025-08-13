@@ -20,6 +20,7 @@ import Login from "../features/auth/LoginPage";
 import WelcomePage from "../pages/WelcomePage";
 import AddPatientForm from "../features/patients/addPatients/AddPatients";
 import DoctorCreatePage from "../features/doctors/pages/DoctorCreatePage";
+import DactorPatients from "../features/doctors/doctorPatients/DactorPatients";
 
 function AppRouter() {
   return (
@@ -39,6 +40,106 @@ function AppRouter() {
               allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION, ROLES.DOCTOR]}
             >
               <PatientsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/doctorcreate"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+              {<DoctorCreatePage />}
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/addPatients"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+              <AddPatientForm />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/appointments"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.RECEPTION, ROLES.DOCTOR]}>
+              <AppointmentsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+              <CalendarPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/doctor-appointments"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+              <DoctorAppointmentsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/doctors"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+              <DoctorsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
+              <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reports"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+              <ReportsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/price-list"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+              <PriceListPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute
+              allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION, ROLES.DOCTOR]}
+            >
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+      <Route element={<MainLayout />}>
+        <Route
+          path="/DactorPatients"
+          element={
+            <ProtectedRoute allowedRoles={ROLES.DOCTOR}>
+              <DactorPatients />
             </ProtectedRoute>
           }
         />

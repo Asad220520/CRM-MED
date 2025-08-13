@@ -11,6 +11,7 @@ function Header({ userName = "Asad" }) {
     "/calendar": "Календарь",
     "/doctor-records": "Записи врачей",
     "/doctor-appointments": "Список врачей",
+    "/doctors": "Список врачей",
     "/analytics": "Аналитика",
     "/patients": "Пациенты",
     "/reports": "Отчеты",
