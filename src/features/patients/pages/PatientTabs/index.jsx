@@ -135,13 +135,12 @@ export default function EditPatientPage() {
       setSaving(false);
     }
   };
-  console.log(formData);
 
   if (loading) return <div>Загрузка...</div>;
   if (!formData) return <div>Пациент не найден</div>;
 
   return (
-    <div className="bg-white  h-[85vh] py-6 px-30 rounded-xl shadow  space-y-6  shadow-[1px_1px_6px_2px_rgba(128,128,128,0.5)]">
+    <div className="bg-white  h-[85vh] py-6 px-20 rounded-xl   space-y-6  shadow-[1px_1px_6px_2px_rgba(128,128,128,0.5)]">
       {/* Заголовок */}
       <h1 className="text-3xl font-semibold mb-2 text-center">
         Информация о пациенте
@@ -182,10 +181,10 @@ export default function EditPatientPage() {
           saving={saving}
         />
       )}
-      {activeTab === 1 && <PatientHistory />}
-      {activeTab === 2 && <PatientAppointments />}
-      {activeTab === 3 && <PaymentInfo />}
-      {activeTab === 4 && <PatientData />}
+      {activeTab === 1 && <PatientHistory name={formData.name}/>}
+      {activeTab === 2 && <PatientAppointments name={formData.name} setActiveTab={setActiveTab} />}
+      {activeTab === 3 && <PaymentInfo name={formData.name} />}
+      {activeTab === 4 && <PatientData  patientId={editId}/>}
     </div>
   );
 }

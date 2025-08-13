@@ -43,7 +43,6 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/doctorcreate"
           element={

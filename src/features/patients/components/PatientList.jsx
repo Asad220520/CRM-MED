@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import API_BASE_URL from "../../../../config/api";
 import { FiMoreVertical } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import fetchWithAuth from "../../auth/fetchWithAuth";
+import { MdDeleteOutline } from "react-icons/md";
+import { Edit2 } from "lucide-react";
 
 const departments = [
   { id: 71, name: "Кардиология" },
@@ -65,24 +68,31 @@ function PatientRow({ rec, paymentTypes, onDelete }) {
           <FiMoreVertical size={18} />
         </button>
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-36 bg-white rounded shadow-xl z-10">
+          <div className="absolute right-4 mt-0 w-40 bg-white rounded shadow-xl z-10">
             <button
               onClick={() => {
                 nav(`/editPasient/${rec.id}`);
                 setIsOpen(false);
               }}
-              className="w-full text-left px-4 py-2 hover:bg-gray-100"
+              className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100"
             >
-              ✏️ Редактировать
+              <span>
+                {" "}
+                <Edit2 size={18} />
+              </span>
+              Редактировать
             </button>
             <button
               onClick={() => {
-                onDelete(rec);
+                onDelete(rec.id);
                 setIsOpen(false);
               }}
-              className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+              className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-900 "
             >
-              🗑️ Удалить
+              <span className="text-gray-600">
+                <MdDeleteOutline size={18} />
+              </span>
+              Удалить
             </button>
           </div>
         )}
@@ -97,7 +107,7 @@ export default function PatientList() {
   const [search, setSearch] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [doctorFilter, setDoctorFilter] = useState("");
-
+  //  const [patients , setPatients] = useState([])
   const getPatients = async (departmentId) => {
     try {
       const token = localStorage.getItem("access");
@@ -117,9 +127,47 @@ export default function PatientList() {
       console.error("Ошибка загрузки пациентов", err);
     }
   };
+  // const getDoctorPatients = async () => {
+  //   try {
+  //     const token = localStorage.getItem("access");
+
+  //     console.log("📌 Токен:", token || "❌ нет токена");
+
+  //     const res = await fetch(`http://13.62.101.249/en/doctor/patient/`, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         ...(token && { Authorization: `Bearer ${token}` }),
+  //       },
+  //     });
+
+  //     console.log("📌 Статус ответа:", res.status);
+
+  //     if (!res.ok) {
+  //       const errorText = await res.text();
+  //       console.error("❌ Ошибка от сервера:", errorText);
+  //       throw new Error(`Ошибка: ${res.status}`);
+  //     }
+
+  //     const data = await res.json();
+  //     console.log("📌 Ответ сервера:", data);
+
+  //     // Если API возвращает объект с patients или results
+  //     if (Array.isArray(data)) {
+  //       setPatients(data);
+  //     } else if (Array.isArray(data.results)) {
+  //       setPatients(data.results);
+  //     } else {
+  //       console.warn("⚠️ Неожиданный формат ответа:", data);
+  //       setPatients([]);
+  //     }
+  //   } catch (err) {
+  //     console.error("❌ Ошибка загрузки пациентов:", err);
+  //   }
+  // };
 
   useEffect(() => {
     getPatients(activeDept.id);
+    // getDoctorPatients()
   }, [activeDept]);
 
   const doctorsList = Array.from(
@@ -146,15 +194,19 @@ export default function PatientList() {
     return matchesSearch && matchesDate && matchesDoctor;
   });
 
-  const handleEdit = (patient) => {
-    console.log("Редактировать:", patient);
-    // логика редактирования
-  };
-
-  const handleDelete = (patient) => {
-    console.log("Удалить:", patient);
-    // логика удаления
-  };
+  async function handleDelete(patientId) {
+    if (!patientId) return;
+    try {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/en/patient/${patientId}/edit/`,
+        { method: "DELETE" }
+      );
+      if (!res.ok) throw new Error(`Ошибка удаления: ${res.status}`);
+      setRecords((prev) => prev.filter((p) => p.id !== patientId));
+    } catch (err) {
+      alert(err.message);
+    }
+  }
 
   return (
     <div className="">
@@ -237,7 +289,6 @@ export default function PatientList() {
                 key={rec.id}
                 rec={rec}
                 paymentTypes={paymentTypes}
-                onEdit={handleEdit}
                 onDelete={handleDelete}
               />
             ))}
