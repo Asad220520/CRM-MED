@@ -1,9 +1,10 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { FiArrowLeft, FiBell } from "react-icons/fi";
 
 function Header({ userName = "Asad" }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { id } = useParams();
 
   // Мапа маршрутов и заголовков
   const routeTitles = {
@@ -17,10 +18,15 @@ function Header({ userName = "Asad" }) {
     "/reports": "Отчеты",
     "/price-list": "Прайс-лист",
     "/profile": "Мой профиль",
+    "/editPasient/:": "Информация о пациенте",
+    "/addPatients": "Добавить пациента",
   };
 
-  const pageTitle = routeTitles[location.pathname] || "Без названия";
+  let pageTitle = routeTitles[location.pathname] || "Без названия";
 
+  if (location.pathname.startsWith("/editPasient/")) {
+    pageTitle = `Информация о пациенте ${id || ""}`;
+  }
   return (
     <header className="flex items-center justify-between px-6 py-3 border-b border-gray-200 bg-white">
       {/* Левая часть */}
