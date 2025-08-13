@@ -46,7 +46,7 @@ export const sidebarConfig = {
   ],
 
   [ROLES.DOCTOR]: [
-    { label: "Пациенты", path: "/patients", icon: FiUsers },
+    { label: "Пациенты", path: "/DactorPatients", icon: FiUsers },
     { label: "Записи", path: "/appointments", icon: FiCalendar },
     {
       label: "Мой профиль",
