@@ -141,7 +141,7 @@ function LoginPage() {
                 }`}
                 {...register("password", {
                   required: "Пароль обязателен",
-                  minLength: { value: 4, message: "Минимум 5 символов" },
+                  minLength: { value: 1, message: "Минимум 5 символов" },
                 })}
               />
               <button
