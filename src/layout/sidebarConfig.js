@@ -15,24 +15,16 @@ export const sidebarConfig = {
   [ROLES.ADMIN]: [
     { label: "Записи клиентов", path: "/patients", icon: FiHome },
     { label: "Управление Календарь", path: "/calendar", icon: FiCalendar },
-    { label: "Записи врачей", path: "/doctor-appointments", icon: FiUserCheck },
     { label: "Список врачей", path: "/doctors", icon: FiUserCheck },
     { label: "Аналитика", path: "/analytics", icon: FiBarChart2 },
     { label: "Отчеты", path: "/reports", icon: FiFileText },
     { label: "Прайс-лист", path: "/price-list", icon: FiDollarSign },
-    {
-      label: "Мой профиль",
-      path: "/profile",
-      icon: FiUserCheck,
-      isBottom: true,
-    },
     { label: "Выйти", action: "logout", icon: FiLogOut, isBottom: true },
   ],
 
   [ROLES.RECEPTION]: [
     { label: "Записи клиентов", path: "/patients", icon: FiHome },
     { label: "Управление Календарь", path: "/calendar", icon: FiCalendar },
-    { label: "Записи врачей", path: "/doctor-appointments", icon: FiUserCheck },
     { label: "Список врачей", path: "/doctors", icon: FiUserCheck },
     { label: "Отчеты", path: "/reports", icon: FiFileText },
     { label: "Прайс-лист", path: "/price-list", icon: FiDollarSign },

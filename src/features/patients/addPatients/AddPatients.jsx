@@ -4,8 +4,8 @@ import fetchWithAuth from "../../auth/fetchWithAuth";
 import API_BASE_URL from "../../../../config/api";
 import Button from "../../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
-import { FaAngleLeft } from "react-icons/fa";
 import { FiChevronLeft } from "react-icons/fi";
+import CalendarFilter from "../../../components/CalendarFilter";
 
 export default function AddPatientForm() {
   const {
@@ -77,7 +77,6 @@ export default function AddPatientForm() {
         (doc) => doc.department.id === Number(selectedDepartmentId)
       );
       setFilteredDoctors(filtered);
-
       const selectedDoctorId = watch("doctor");
       if (
         selectedDoctorId &&
@@ -167,23 +166,6 @@ export default function AddPatientForm() {
       alert("Ошибка: " + err.message);
     }
   };
-  const [data, setData] = useState([]);
-  useEffect(() => {
-    async function fetData() {
-      try {
-        const res = await fetchWithAuth(
-          `${API_BASE_URL}/en/patient/Gregory Bell/history/`
-        );
-        if (!res.ok) throw new Error(`Ошибка ${res.status}`);
-        const data = await res.json();
-        setData(data);
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-    fetData();
-  }, []);
-  console.log(data);
 
   if (loading) return <p>Загрузка данных...</p>;
   if (error) return <p>Ошибка: {error}</p>;
@@ -221,11 +203,13 @@ export default function AddPatientForm() {
         {/* Дата рождения */}
         <div>
           <label className="block mb-1 font-medium">Дата рождения</label>
-          <input
-            type="date"
-            {...register("birthDate", { required: true })}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
+
+          <CalendarFilter
+            filters={{ date: watch("birthDate") }} // react-hook-form watch
+            handleFilterChange={(name, value) => setValue("birthDate", value)}
+            mode="filter" // только прошлые даты
           />
+
           {errors.birthDate && (
             <p className="text-red-600 text-sm">Введите дату рождения</p>
           )}
@@ -343,11 +327,15 @@ export default function AddPatientForm() {
         {/* Дата записи (appointment_date) */}
         <div>
           <label className="block mb-1 font-medium">Дата записи</label>
-          <input
-            type="date"
-            {...register("appointment_date", { required: true })}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
+
+          <CalendarFilter
+            filters={{ date: watch("appointment_date") }} // текущая дата из формы
+            handleFilterChange={(name, value) =>
+              setValue("appointment_date", value)
+            }
+            mode="booking" // только будущие даты
           />
+
           {errors.appointment_date && (
             <p className="text-red-600 text-sm">Введите дату записи</p>
           )}
