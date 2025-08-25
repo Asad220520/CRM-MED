@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import fetchWithAuth from "../../auth/fetchWithAuth";
 import { MdDeleteOutline } from "react-icons/md";
 import { Edit2 } from "lucide-react";
+import CalendarFilter from "../../../components/CalendarFilter";
 
 const departments = [
   { id: 71, name: "Кардиология" },
@@ -219,12 +220,12 @@ export default function PatientList() {
           onChange={(e) => setSearch(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2"
         />
-        <input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2"
+        <CalendarFilter
+          filters={{ date: dateFilter }}
+          handleFilterChange={(key, value) => setDateFilter(value)}
+          mode="filter" // или "booking"
         />
+
         <select
           value={doctorFilter}
           onChange={(e) => setDoctorFilter(e.target.value)}

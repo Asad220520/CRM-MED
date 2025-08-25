@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layout/MainLayout";
 
-import HomePage from "../pages/HomePage";
 import NotFoundPage from "../pages/NotFoundPage";
 import PatientsPage from "../features/patients/pages/PatientsPage";
 import AppointmentsPage from "../features/doctorAppointments/pages/DoctorAppointmentsPage";
@@ -22,6 +21,7 @@ import AddPatientForm from "../features/patients/addPatients/AddPatients";
 import DoctorCreatePage from "../features/doctors/pages/DoctorCreatePage";
 import DactorPatients from "../features/doctors/doctorPatients/DactorPatients";
 import EditPatientPage from "../features/patients/pages/PatientTabs";
+import Doctor from "../features/doctors/components/Doctor";
 
 function AppRouter() {
   return (
@@ -61,14 +61,6 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/appointments"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.RECEPTION, ROLES.DOCTOR]}>
-              <AppointmentsPage />
-            </ProtectedRoute>
-          }
-        />
 
         <Route
           path="/calendar"
@@ -163,14 +155,6 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/appointments"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.RECEPTION, ROLES.DOCTOR]}>
-              <AppointmentsPage />
-            </ProtectedRoute>
-          }
-        />
 
         <Route
           path="/calendar"
@@ -198,16 +182,6 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-
-        <Route
-          path="/analytics"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-              <AnalyticsPage />
-            </ProtectedRoute>
-          }
-        />
-
         <Route
           path="/reports"
           element={
@@ -216,7 +190,6 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/price-list"
           element={
@@ -246,27 +219,12 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-
-        <Route
-          path="/doctorcreate"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
-              {<DoctorCreatePage />}
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/addPatients"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
-              <AddPatientForm />
-            </ProtectedRoute>
-          }
-        />
         <Route
           path="/editPasient/:editId"
           element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+            <ProtectedRoute
+              allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION, ROLES.DOCTOR]}
+            >
               <EditPatientPage />
             </ProtectedRoute>
           }
@@ -288,47 +246,11 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-
         <Route
-          path="/doctor-appointments"
+          path="/notification"
           element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-              <DoctorAppointmentsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/doctors"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
-              <DoctorsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/analytics"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-              <AnalyticsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/reports"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
-              <ReportsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/price-list"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
-              <PriceListPage />
+            <ProtectedRoute allowedRoles={[ROLES.RECEPTION, ROLES.DOCTOR]}>
+              <Doctor />
             </ProtectedRoute>
           }
         />

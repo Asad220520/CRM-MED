@@ -8,7 +8,6 @@ const routeTitles = {
   "/doctor-records": "Записи врачей",
   "/doctors": "Список врачей",
   "/analytics": "Аналитика",
-  "/patients": "Пациенты",
   "/reports": "Отчеты",
   "/price-list": "Прайс-лист",
   "/profile": "Мой профиль",
@@ -26,7 +25,7 @@ function MainLayout() {
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <Header title={pageTitle} onBack={() => navigate(-1)} />
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-5">
           <Outlet />
         </main>
       </div>
