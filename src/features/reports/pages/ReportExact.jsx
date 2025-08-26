@@ -7,7 +7,8 @@ import {
   setSelectedDepartment,
 } from "../../../redux/doctorsSlice";
 import Select from "../../../components/ui/Select";
-import CalendarFilter from "../../../components/CalendarFilter";
+import Calendar from "../../../components/ui/Calendar";
+import LoadingSkeleton from "../../../components/ui/LoadingSkeleton";
 
 const ReportExact = () => {
   const dispatch = useDispatch();
@@ -68,6 +69,7 @@ const ReportExact = () => {
       dispatch(setFilter({ key: "doctor", value: "" })); // сброс выбранного врача
     }
   };
+  if (loading) return <LoadingSkeleton />;
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -95,11 +97,11 @@ const ReportExact = () => {
           allOptionLabel="Все врачи"
         />
 
-<CalendarFilter
-  filters={filters}
-  handleFilterChange={handleFilterChange}
-  mode="filter"
-/>
+        <Calendar
+          filters={filters}
+          handleFilterChange={handleFilterChange}
+          mode="filter"
+        />
       </div>
 
       {/* Заголовок */}

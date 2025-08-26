@@ -8,6 +8,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import fetchWithAuth from "../../../auth/fetchWithAuth";
 import API_BASE_URL from "../../../../../config/api";
+import LoadingSkeleton from "../../../../components/ui/LoadingSkeleton";
 
 export default function EditPatientPage() {
   const { editId } = useParams();
@@ -136,7 +137,7 @@ export default function EditPatientPage() {
     }
   };
 
-  if (loading) return <div>Загрузка...</div>;
+  if (loading) return <LoadingSkeleton />;
   if (!formData) return <div>Пациент не найден</div>;
 
   return (
@@ -181,10 +182,12 @@ export default function EditPatientPage() {
           saving={saving}
         />
       )}
-      {activeTab === 1 && <PatientHistory name={formData.name}/>}
-      {activeTab === 2 && <PatientAppointments name={formData.name} setActiveTab={setActiveTab} />}
+      {activeTab === 1 && <PatientHistory name={formData.name} />}
+      {activeTab === 2 && (
+        <PatientAppointments name={formData.name} setActiveTab={setActiveTab} />
+      )}
       {activeTab === 3 && <PaymentInfo name={formData.name} />}
-      {activeTab === 4 && <PatientData  patientId={editId}/>}
+      {activeTab === 4 && <PatientData patientId={editId} />}
     </div>
   );
 }

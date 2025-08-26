@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import fetchWithAuth from "../../auth/fetchWithAuth";
 import API_BASE_URL from "../../../../config/api";
+import LoadingSkeleton from "../../../components/ui/LoadingSkeleton";
 
 /* ================= helpers & constants ================= */
 const RU_DAYS = [
@@ -124,23 +125,7 @@ const mapStatus = (app) => {
   return "default";
 };
 
-/* ================= small UI pieces ================= */
-function LoadingSkeleton() {
-  return (
-    <div className="p-6">
-      <div className="mx-auto max-w-[1200px]">
-        <div className="mb-3 flex items-center gap-2 text-sm text-gray-600">
-          <RefreshCw className="w-4 h-4 animate-spin" /> Загрузка…
-        </div>
-        <div className="grid grid-cols-12 gap-3">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="h-8 rounded-lg bg-gray-100 animate-pulse" />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
+
 
 function ErrorBanner({ message }) {
   if (!message) return null;
@@ -328,10 +313,6 @@ function TimeLabelsColumn({ timeSlots }) {
   );
 }
 
-function CurrentTimeIndicator({}) {
-  // Rendered by DayColumn when applicable
-  return null;
-}
 
 function AppointmentCard({ app, topPx, heightPx, onOpenMenu }) {
   const styles = statusStyles[mapStatus(app)] || statusStyles.default;
