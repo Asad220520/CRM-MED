@@ -7,7 +7,7 @@ const months = [
 ];
 const weekdays = ["ПН","ВТ","СР","ЧТ","ПТ","СБ","ВС"];
 
-export default function CalendarFilter({
+export default function Calendar({
   filters = {},
   handleFilterChange = () => {},
   mode = "filter", // "filter" или "booking"

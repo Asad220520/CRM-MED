@@ -5,7 +5,9 @@ import API_BASE_URL from "../../../../config/api";
 import Button from "../../../components/ui/Button";
 import { useNavigate } from "react-router-dom";
 import { FiChevronLeft } from "react-icons/fi";
-import CalendarFilter from "../../../components/CalendarFilter";
+import Calendar from "../../../components/ui/Calendar";
+import Select from "../../../components/ui/Select"; // твой кастомный Select
+import LoadingSkeleton from "../../../components/ui/LoadingSkeleton";
 
 export default function AddPatientForm() {
   const {
@@ -20,15 +22,13 @@ export default function AddPatientForm() {
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [services, setServices] = useState([]);
-  const [registrars] = useState([
-    { id: 252, name: "Артем Исанов" },
-    // Добавь других регистраторов с уникальными числовыми id
-  ]);
+  const [registrars] = useState([{ id: 252, name: "Артем Исанов" }]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const selectedDepartmentId = watch("department");
 
+  // загрузка докторов и отделений
   useEffect(() => {
     async function fetchDoctors() {
       try {
@@ -63,7 +63,7 @@ export default function AddPatientForm() {
         );
         if (!res.ok) throw new Error(`Ошибка ${res.status}`);
         const data = await res.json();
-        setServices(data);
+        setServices(data); // <- здесь сохраняем полученные услуги
       } catch (err) {
         setError(err.message);
       }
@@ -71,6 +71,7 @@ export default function AddPatientForm() {
     fetchServices();
   }, []);
 
+  // фильтрация докторов по отделению
   useEffect(() => {
     if (selectedDepartmentId) {
       const filtered = doctors.filter(
@@ -89,31 +90,28 @@ export default function AddPatientForm() {
     }
   }, [selectedDepartmentId, doctors, setValue, watch]);
 
-  const departmentOptions = departments.map((dep) => (
-    <option key={dep.id} value={dep.id}>
-      {dep.department_name}
-    </option>
-  ));
+  // Опции для Select
+  const departmentOptions = departments.map((dep) => ({
+    value: dep.id,
+    label: dep.department_name,
+  }));
 
-  const doctorOptions = filteredDoctors.map((doc) => (
-    <option key={doc.id} value={doc.id}>
-      {doc.username}
-    </option>
-  ));
+  const doctorOptions = filteredDoctors.map((doc) => ({
+    value: doc.id,
+    label: doc.username,
+  }));
 
   const serviceOptions = services.flatMap((srv) =>
-    srv.department_services.map((el) => (
-      <option className=" " key={el.id} value={el.id}>
-        {el.type} {el.price} сом
-      </option>
-    ))
+    srv.department_services.map((el) => ({
+      value: el.id,
+      label: `${el.type} ${el.price} сом`,
+    }))
   );
 
-  const registrarOptions = registrars.map((reg) => (
-    <option key={reg.id} value={reg.id}>
-      {reg.name}
-    </option>
-  ));
+  const registrarOptions = registrars.map((reg) => ({
+    value: reg.id,
+    label: reg.name,
+  }));
 
   const statusOptions = [
     { value: "pre-registration", label: "Предзапись" },
@@ -167,18 +165,18 @@ export default function AddPatientForm() {
     }
   };
 
-  if (loading) return <p>Загрузка данных...</p>;
+  if (loading) return <LoadingSkeleton/>;
   if (error) return <p>Ошибка: {error}</p>;
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-white  h-[85vh] py-6 px-30 rounded-xl shadow  space-y-6  shadow-[1px_1px_6px_2px_rgba(128,128,128,0.5)]"
+      className="bg-white h-[85vh] py-6 px-30 rounded-xl shadow space-y-6 shadow-[1px_1px_6px_2px_rgba(128,128,128,0.5)]"
     >
       <div className="flex items-center gap-50">
         <div className="flex items-end gap-1">
           <FiChevronLeft size={26} />
-          <h2 className=" text-xl p-0 text-left font-semibold ">
+          <h2 className="text-xl p-0 text-left font-semibold">
             Записи клиентов
           </h2>
         </div>
@@ -203,13 +201,11 @@ export default function AddPatientForm() {
         {/* Дата рождения */}
         <div>
           <label className="block mb-1 font-medium">Дата рождения</label>
-
-          <CalendarFilter
-            filters={{ date: watch("birthDate") }} // react-hook-form watch
+          <Calendar
+            filters={{ date: watch("birthDate") }}
             handleFilterChange={(name, value) => setValue("birthDate", value)}
-            mode="filter" // только прошлые даты
+            mode="filter"
           />
-
           {errors.birthDate && (
             <p className="text-red-600 text-sm">Введите дату рождения</p>
           )}
@@ -217,15 +213,18 @@ export default function AddPatientForm() {
 
         {/* Пол */}
         <div>
-          <label className="block mb-1 font-medium">Пол</label>
-          <select
-            {...register("gender", { required: true })}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          >
-            <option value="">Выберите пол</option>
-            <option value="male">Мужской</option>
-            <option value="female">Женский</option>
-          </select>
+          <Select
+            label="Пол"
+            name="gender"
+            value={watch("gender")}
+            onChange={(e) => setValue("gender", e.target.value)}
+            options={[
+              { value: "male", label: "Мужской" },
+              { value: "female", label: "Женский" },
+            ]}
+            containerWidth="w-full"
+            dropdownMaxHeight="max-h-40"
+          />
           {errors.gender && (
             <p className="text-red-600 text-sm">Выберите пол</p>
           )}
@@ -247,14 +246,15 @@ export default function AddPatientForm() {
 
         {/* Отделение */}
         <div>
-          <label className="block mb-1 font-medium">Отделение</label>
-          <select
-            {...register("department", { required: true })}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          >
-            <option value="">Выберите отделение</option>
-            {departmentOptions}
-          </select>
+          <Select
+            label="Отделение"
+            name="department"
+            value={watch("department")}
+            onChange={(e) => setValue("department", e.target.value)}
+            options={departmentOptions}
+            containerWidth="w-full"
+            dropdownMaxHeight="max-h-40"
+          />
           {errors.department && (
             <p className="text-red-600 text-sm">Выберите отделение</p>
           )}
@@ -262,14 +262,15 @@ export default function AddPatientForm() {
 
         {/* Врач */}
         <div>
-          <label className="block mb-1 font-medium">Врач</label>
-          <select
-            {...register("doctor", { required: true })}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          >
-            <option value="">Выберите врача</option>
-            {doctorOptions}
-          </select>
+          <Select
+            label="Врач"
+            name="doctor"
+            value={watch("doctor")}
+            onChange={(e) => setValue("doctor", e.target.value)}
+            options={doctorOptions}
+            containerWidth="w-full"
+            dropdownMaxHeight="max-h-40"
+          />
           {errors.doctor && (
             <p className="text-red-600 text-sm">Выберите врача</p>
           )}
@@ -277,14 +278,15 @@ export default function AddPatientForm() {
 
         {/* Услуги врача */}
         <div>
-          <label className="block mb-1 font-medium">Услуги врача</label>
-          <select
-            {...register("service", { required: true })}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          >
-            <option value="">Выберите услугу</option>
-            {serviceOptions}
-          </select>
+          <Select
+            label="Услуги врача"
+            name="service"
+            value={watch("service")}
+            onChange={(e) => setValue("service", e.target.value)}
+            options={serviceOptions}
+            containerWidth="w-full"
+            dropdownMaxHeight="max-h-40"
+          />
           {errors.service && (
             <p className="text-red-600 text-sm">Выберите услугу</p>
           )}
@@ -292,14 +294,16 @@ export default function AddPatientForm() {
 
         {/* Регистратор */}
         <div>
-          <label className="block mb-1 font-medium">Регистратор</label>
-          <select
-            {...register("registrar", { required: true })}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          >
-            <option value="">Выберите регистратора</option>
-            {registrarOptions}
-          </select>
+          <Select
+            label="Регистратор"
+            name="registrar"
+            value={watch("registrar")}
+            onChange={(e) => setValue("registrar", e.target.value)}
+            options={registrarOptions}
+            containerWidth="w-full"
+            dropdownMaxHeight="max-h-40"
+          />
+
           {errors.registrar && (
             <p className="text-red-600 text-sm">Выберите регистратора</p>
           )}
@@ -307,54 +311,46 @@ export default function AddPatientForm() {
 
         {/* Статус пациента */}
         <div>
-          <label className="block mb-1 font-medium">Статус пациента</label>
-          <select
-            {...register("status", { required: true })}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          >
-            <option value="">Выберите статус</option>
-            {statusOptions.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+          <Select
+            label="Статус пациента"
+            name="status"
+            value={watch("status")}
+            onChange={(e) => setValue("status", e.target.value)}
+            options={statusOptions}
+            containerWidth="w-full"
+            dropdownMaxHeight="max-h-40"
+          />
           {errors.status && (
             <p className="text-red-600 text-sm">Выберите статус пациента</p>
           )}
         </div>
 
-        {/* Дата записи (appointment_date) */}
+        {/* Дата записи */}
         <div>
           <label className="block mb-1 font-medium">Дата записи</label>
-
-          <CalendarFilter
-            filters={{ date: watch("appointment_date") }} // текущая дата из формы
+          <Calendar
+            filters={{ date: watch("appointment_date") }}
             handleFilterChange={(name, value) =>
               setValue("appointment_date", value)
             }
-            mode="booking" // только будущие даты
+            mode="booking"
           />
-
           {errors.appointment_date && (
             <p className="text-red-600 text-sm">Введите дату записи</p>
           )}
         </div>
 
-        {/* Тип оплаты (payment_type) */}
+        {/* Тип оплаты */}
         <div>
-          <label className="block mb-1 font-medium">Тип оплаты</label>
-          <select
-            {...register("payment_type", { required: true })}
-            className="border border-gray-300 rounded px-3 py-2 w-full"
-          >
-            <option value="">Выберите тип оплаты</option>
-            {paymentOptions.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+          <Select
+            label="Тип оплаты"
+            name="payment_type"
+            value={watch("payment_type")}
+            onChange={(e) => setValue("payment_type", e.target.value)}
+            options={paymentOptions}
+            containerWidth="w-full"
+            dropdownMaxHeight="max-h-40"
+          />
           {errors.payment_type && (
             <p className="text-red-600 text-sm">Выберите тип оплаты</p>
           )}

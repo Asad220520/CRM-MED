@@ -1,31 +1,23 @@
 import React, { useEffect, useState, useRef } from "react";
-import API_BASE_URL from "../../../../config/api";
-import { FiMoreVertical } from "react-icons/fi";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import fetchWithAuth from "../../auth/fetchWithAuth";
+import { FiMoreVertical } from "react-icons/fi";
 import { MdDeleteOutline } from "react-icons/md";
 import { Edit2 } from "lucide-react";
-import CalendarFilter from "../../../components/CalendarFilter";
 
-const departments = [
-  { id: 71, name: "Кардиология" },
-  { id: 72, name: "Неврология" },
-  { id: 73, name: "УЗИ" },
-  { id: 74, name: "Рентген и КТ" },
-  { id: 75, name: "Велоэргометрия (ВЭМ)" },
-  { id: 76, name: "Допплерография сосудов" },
-  { id: 77, name: "Отделение №77" },
-  { id: 78, name: "Отделение №78" },
-  { id: 79, name: "Отделение №79" },
-  { id: 80, name: "Отделение №80" },
-];
+import API_BASE_URL from "../../../../config/api";
+import fetchWithAuth from "../../auth/fetchWithAuth";
+import { fetchDepartment } from "../../../redux/departmentSlice";
+import LoadingSkeleton from "../../../components/ui/LoadingSkeleton";
+import Calendar from "../../../components/ui/Calendar";
+import Select from "../../../components/ui/Select";
 
 const paymentTypes = {
   Карта: { label: "Карта", color: "bg-blue-500" },
   Наличные: { label: "Наличные", color: "bg-green-500" },
 };
 
-// Компонент строки пациента с локальной выпадашкой
+// Строка таблицы пациента
 function PatientRow({ rec, paymentTypes, onDelete }) {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
@@ -33,13 +25,19 @@ function PatientRow({ rec, paymentTypes, onDelete }) {
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setIsOpen(false);
-      }
+      if (ref.current && !ref.current.contains(e.target)) setIsOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const dateStr = new Date(rec.appointment_date).toLocaleString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
   return (
     <tr
@@ -48,9 +46,9 @@ function PatientRow({ rec, paymentTypes, onDelete }) {
         isOpen ? "bg-[#E6F7F8]" : ""
       }`}
     >
-      <td className="p-3">{rec.appointment_date}</td>
+      <td className="p-3">{dateStr}</td>
       <td className="p-3">{rec.name}</td>
-      <td className="p-3">{rec.doctor.username}</td>
+      <td className="p-3">{rec.doctor?.username}</td>
       <td className="p-3 flex items-center">
         <span
           className={`w-3 h-3 rounded-full mr-2 ${
@@ -77,10 +75,7 @@ function PatientRow({ rec, paymentTypes, onDelete }) {
               }}
               className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100"
             >
-              <span>
-                {" "}
-                <Edit2 size={18} />
-              </span>
+              <Edit2 size={18} />
               Редактировать
             </button>
             <button
@@ -88,11 +83,9 @@ function PatientRow({ rec, paymentTypes, onDelete }) {
                 onDelete(rec.id);
                 setIsOpen(false);
               }}
-              className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-900 "
+              className="flex items-center gap-2 w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-900"
             >
-              <span className="text-gray-600">
-                <MdDeleteOutline size={18} />
-              </span>
+              <MdDeleteOutline size={18} className="text-gray-600" />
               Удалить
             </button>
           </div>
@@ -102,99 +95,88 @@ function PatientRow({ rec, paymentTypes, onDelete }) {
   );
 }
 
+// Основной компонент списка пациентов
 export default function PatientList() {
-  const [activeDept, setActiveDept] = useState(departments[0]);
+  const dispatch = useDispatch();
+  const { departments, loading, error } = useSelector(
+    (state) => state.department
+  );
+
+  const [activeDept, setActiveDept] = useState(null);
   const [records, setRecords] = useState([]);
   const [search, setSearch] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [doctorFilter, setDoctorFilter] = useState("");
-  //  const [patients , setPatients] = useState([])
-  const getPatients = async (departmentId) => {
-    try {
-      const token = localStorage.getItem("access");
-      const res = await fetch(
-        `${API_BASE_URL}/ru/department/${departmentId}/patient/`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        }
-      );
-      if (!res.ok) throw new Error(`Ошибка: ${res.status}`);
-      const data = await res.json();
-      setRecords(data.patients || []);
-    } catch (err) {
-      console.error("Ошибка загрузки пациентов", err);
-    }
-  };
-  // const getDoctorPatients = async () => {
-  //   try {
-  //     const token = localStorage.getItem("access");
 
-  //     console.log("📌 Токен:", token || "❌ нет токена");
-
-  //     const res = await fetch(`http://13.62.101.249/en/doctor/patient/`, {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         ...(token && { Authorization: `Bearer ${token}` }),
-  //       },
-  //     });
-
-  //     console.log("📌 Статус ответа:", res.status);
-
-  //     if (!res.ok) {
-  //       const errorText = await res.text();
-  //       console.error("❌ Ошибка от сервера:", errorText);
-  //       throw new Error(`Ошибка: ${res.status}`);
-  //     }
-
-  //     const data = await res.json();
-  //     console.log("📌 Ответ сервера:", data);
-
-  //     // Если API возвращает объект с patients или results
-  //     if (Array.isArray(data)) {
-  //       setPatients(data);
-  //     } else if (Array.isArray(data.results)) {
-  //       setPatients(data.results);
-  //     } else {
-  //       console.warn("⚠️ Неожиданный формат ответа:", data);
-  //       setPatients([]);
-  //     }
-  //   } catch (err) {
-  //     console.error("❌ Ошибка загрузки пациентов:", err);
-  //   }
-  // };
-
+  // Загружаем департаменты
   useEffect(() => {
-    getPatients(activeDept.id);
-    // getDoctorPatients()
+    dispatch(fetchDepartment());
+  }, [dispatch]);
+
+  // Автоматически выбираем первый департамент
+  useEffect(() => {
+    if (!activeDept && departments.length > 0) {
+      setActiveDept(departments[0]);
+    }
+  }, [departments, activeDept]);
+
+  // Получаем пациентов выбранного департамента
+  useEffect(() => {
+    const getPatients = async (departmentId) => {
+      try {
+        if (!departmentId) return;
+        const token = localStorage.getItem("access");
+        const res = await fetch(
+          `${API_BASE_URL}/ru/department/${departmentId}/patient/`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              ...(token && { Authorization: `Bearer ${token}` }),
+            },
+          }
+        );
+        if (!res.ok) throw new Error(`Ошибка: ${res.status}`);
+        const data = await res.json();
+        setRecords(data.patients || []);
+      } catch (err) {
+        console.error("Ошибка загрузки пациентов", err);
+      }
+    };
+
+    if (activeDept?.id) getPatients(activeDept.id);
   }, [activeDept]);
 
+  // Список уникальных врачей из текущих пациентов
   const doctorsList = Array.from(
     records
       .reduce((acc, r) => {
-        if (r.doctor?.username && r.doctor?.id) {
-          acc.set(r.doctor.id, r.doctor);
-        }
+        if (r.doctor?.id && r.doctor?.username) acc.set(r.doctor.id, r.doctor);
         return acc;
       }, new Map())
       .values()
   );
 
+  // Фильтрация записей
   const filteredRecords = records.filter((rec) => {
     const matchesSearch = rec.name.toLowerCase().includes(search.toLowerCase());
-    const matchesDate = dateFilter
-      ? rec.appointment_date.startsWith(
-          dateFilter.split("-").reverse().join("-")
-        )
-      : true;
-    const matchesDoctor = doctorFilter
-      ? rec.doctor.username.toLowerCase() === doctorFilter.toLowerCase()
-      : true;
+
+    const recDate = rec.appointment_date
+      ? new Date(rec.appointment_date)
+      : null;
+    const matchesDate =
+      !dateFilter ||
+      (recDate &&
+        !isNaN(recDate) &&
+        recDate.toISOString().slice(0, 10) === dateFilter);
+
+    const matchesDoctor =
+      !doctorFilter ||
+      rec.doctor?.username.toLowerCase() === doctorFilter.toLowerCase();
+
     return matchesSearch && matchesDate && matchesDoctor;
   });
 
+  // Удаление пациента
   async function handleDelete(patientId) {
     if (!patientId) return;
     try {
@@ -208,9 +190,10 @@ export default function PatientList() {
       alert(err.message);
     }
   }
-
+  if (loading) return <LoadingSkeleton />;
+  if (error) return <div className="text-red-500">Ошибка: {error}</div>;
   return (
-    <div className="">
+    <div>
       {/* Фильтры */}
       <div className="flex flex-wrap gap-3 mb-4">
         <input
@@ -220,46 +203,40 @@ export default function PatientList() {
           onChange={(e) => setSearch(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2"
         />
-        <CalendarFilter
+        <Calendar
           filters={{ date: dateFilter }}
           handleFilterChange={(key, value) => setDateFilter(value)}
-          mode="filter" // или "booking"
+          mode="filter"
         />
-
-        <select
+        <Select
           value={doctorFilter}
           onChange={(e) => setDoctorFilter(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 bg-white"
-        >
-          <option value="">Все врачи</option>
-          {doctorsList.map((doc) => (
-            <option key={doc.id} value={doc.username}>
-              {doc.username}
-            </option>
-          ))}
-        </select>
+          options={doctorsList.map((doc) => ({
+            value: doc.username,
+            label: doc.username,
+          }))}
+          searchable={true} // включаем поиск
+          allOptionLabel="Все врачи"
+        />
       </div>
 
-      {/* Вкладки отделений */}
+      {/* Вкладки департаментов */}
       <div
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-        className="overflow-x-auto w-[1000px]"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        className="overflow-x-auto w-[1000px] mb-4"
       >
-        <div className="flex w-max mb-4">
+        <div className="flex w-max">
           {departments.map((dept) => (
             <button
               key={dept.id}
               className={`pb-2 px-4 whitespace-nowrap ${
-                dept.id === activeDept.id
+                dept.id === activeDept?.id
                   ? "border-b-4 border-blue-600 font-semibold text-blue-600"
                   : "border-b-4 border-gray-100 text-gray-500"
               }`}
               onClick={() => setActiveDept(dept)}
             >
-              {dept.name}
+              {dept.department_name}
             </button>
           ))}
         </div>
@@ -267,10 +244,7 @@ export default function PatientList() {
 
       {/* Таблица пациентов */}
       <div
-        style={{
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         className="overflow-x-auto overflow-y-auto max-h-[360px]"
       >
         <table className="w-full border-collapse">

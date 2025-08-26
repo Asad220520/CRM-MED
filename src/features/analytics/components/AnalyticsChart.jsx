@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import Select from "../../../components/ui/Select";
 const formatDateForChart = (dateString) => {
   if (!dateString) return "";
   const [day, month, yearAndTime] = dateString.split("-"); // ["15","08","2025 15:36"]
@@ -41,15 +42,16 @@ const AnalyticsChart = ({
           Статистика записи на прием
         </h1>
         {/* Селектор периода */}
-        <select
+        <Select
+          options={[
+            { value: "weekly", label: "еженедельно" },
+            { value: "monthly", label: "ежемесячно" },
+            { value: "yearly", label: "ежегодно" },
+          ]}
           value={period}
           onChange={(e) => onPeriodChange(e.target.value)}
-          className="px-4 py-2  w-[180px]  border border-gray-300 font-medium rounded-lg bg-white text-[#616161] text-1xl"
-        >
-          <option value="weekly">еженедельно</option>
-          <option value="monthly">ежемесячно</option>
-          <option value="yearly">ежегодно</option>
-        </select>
+          placeholder="Выберите период"
+        />
       </div>
       <div className="flex flex-row gap-8">
         <div className="w-[400px] mb-8">

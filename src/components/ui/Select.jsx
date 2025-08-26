@@ -9,14 +9,22 @@ export default function Select({
   searchable = false,
   disabled = false,
   name,
-  allOptionLabel = "Все", // первая опция
+  placeholder = "Выберите...",
+  allOptionLabel = "",
+  containerWidth = "", 
+  buttonHeight = "", 
+  dropdownMaxHeight = "max-h-50", 
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef(null);
 
-  const fullOptions = [{ value: "", label: allOptionLabel }, ...options];
-  const selectedLabel = fullOptions.find((opt) => opt.value === value)?.label;
+  const fullOptions = allOptionLabel
+    ? [{ value: "", label: allOptionLabel }, ...options]
+    : options;
+
+  const selectedLabel =
+    fullOptions.find((opt) => opt.value === value)?.label || placeholder;
 
   const filteredOptions = searchable
     ? fullOptions.filter((opt) =>
@@ -41,26 +49,31 @@ export default function Select({
   }, []);
 
   return (
-    <div className="inline-block " ref={dropdownRef}>
+    <div className={`inline-block ${containerWidth}`} ref={dropdownRef}>
       {label && (
         <label className="block mb-1 text-sm font-medium text-gray-700">
           {label}
         </label>
       )}
-      <div className="relative inline-block w-max">
+      <div className="relative inline-block w-full">
         <button
           type="button"
           onClick={() => !disabled && setIsOpen((prev) => !prev)}
-          className={`flex justify-between items-center h-10 px-4 py-2 border rounded-md bg-white text-left w-full ${
+          className={`flex justify-between items-center px-4 py-2 border border-gray-300 rounded-md bg-white text-left w-full ${buttonHeight} ${
             disabled ? "bg-gray-100 cursor-not-allowed" : "cursor-pointer"
           }`}
         >
-          <span className="text-gray-800">{selectedLabel}</span>
+          <span className={`${value ? "text-gray-800" : "text-gray-400"}`}>
+            {selectedLabel}
+          </span>
           <FiChevronDown className="text-gray-500" />
         </button>
 
         {isOpen && (
-          <div className="absolute top-12 z-30 bg-white border rounded shadow max-h-60 overflow-y-auto scrollbar-blue w-max min-w-full">
+          <div
+            className={`absolute top-full z-30 bg-white border border-gray-300  rounded shadow overflow-y-auto min-w-full ${dropdownMaxHeight} 
+     scrollbar-blue `}
+          >
             {searchable && (
               <div className="flex items-center px-3 py-2 border-b">
                 <FiSearch className="text-gray-400 mr-2" />
@@ -78,7 +91,7 @@ export default function Select({
                 <div
                   key={option.value}
                   onClick={() => handleSelect(option)}
-                  className={`px-4 py-2  text-sm cursor-pointer ${
+                  className={`px-4 py-2 text-sm cursor-pointer ${
                     option.value === value
                       ? "bg-blue-50 font-semibold text-blue-700"
                       : "hover:bg-blue-50"

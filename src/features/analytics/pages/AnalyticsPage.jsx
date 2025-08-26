@@ -4,15 +4,17 @@ import CountUp from "react-countup";
 import { TrendingUp, TrendingDown, PieChart } from "lucide-react";
 import API_BASE_URL from "../../../../config/api";
 import AnalyticsChart from "../components/AnalyticsChart";
+import LoadingSkeleton from "../../../components/ui/LoadingSkeleton";
 
 // Компонент карточки статистики
 const StatCard = ({
   // eslint-disable-next-line no-unused-vars
   icon: Icon,
   title,
+  item,
   value,
+  minus,
   iconColor,
-  isNegative = false,
 }) => (
   <div className="border  border-gray-200 flex gap-6  items-center rounded-2xl p-6 h-30 shadow-sm">
     <div className="">
@@ -26,10 +28,10 @@ const StatCard = ({
       </div>
     </div>
     <div className="text-4xl font-medium text-gray-900">
-      <div className="text-gray-400 font-medium text-lg mb-1">{title}</div>
-      {isNegative && value > 0 ? "-" : ""}
+      <div className="text-gray-400  font-medium text-lg mb-1">{title}</div>
+      {minus}
       <CountUp start={0} end={value || 0} duration={2.5} />
-      {title.includes("%") ? "%" : ""}
+      {item}
     </div>
   </div>
 );
@@ -70,13 +72,7 @@ const AnalyticsPage = () => {
     getAnalyticsData(period);
   }, [period]);
 
-  if (loading) {
-    return (
-      <div className="p-6 bg-gray-50 min-h-screen flex items-center justify-center font-sans">
-        <div className="text-lg">⏳ Загрузка...</div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingSkeleton />;
 
   if (error) {
     return (
@@ -109,12 +105,15 @@ const AnalyticsPage = () => {
         <StatCard
           icon={TrendingUp}
           title="Рост"
+          item={"%"}
           value={analytics.rise}
           iconColor="text-green-600"
         />
         <StatCard
           icon={TrendingDown}
           title="Падения"
+          item={"%"}
+          minus={"-"}
           value={analytics.fall}
           iconColor="text-red-500"
         />
