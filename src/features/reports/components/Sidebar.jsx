@@ -1,11 +1,11 @@
 import React from "react";
 import { ChevronLeft } from "lucide-react";
 
-const Sidebar = ({ activeReport, setActiveReport, onBack }) => {
+const Sidebar = ({ activeReport, setActiveReport }) => {
   const menuItems = [
-    { id: "detailed", label: "Подробный отчет" },
-    { id: "closed", label: "По врачам (закрытия)" },
-    { id: "summary", label: "Сводный отчет" },
+    { id: "reportExact", label: "Подробный отчет" },
+    { id: "reportDoctor", label: "По врачам (закрытия)" },
+    { id: "reportSummary", label: "Сводный отчет" },
   ];
 
   return (
@@ -27,16 +27,6 @@ const Sidebar = ({ activeReport, setActiveReport, onBack }) => {
             </button>
           ))}
         </nav>
-      </div>
-
-      <div className="absolute bottom-4 left-4">
-        <button
-          onClick={onBack}
-          className="flex items-center text-sm text-gray-600 hover:text-gray-800 transition-colors"
-        >
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Назад
-        </button>
       </div>
     </div>
   );

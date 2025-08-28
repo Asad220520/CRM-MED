@@ -223,9 +223,9 @@ export default function PatientList() {
       {/* Вкладки департаментов */}
       <div
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        className="overflow-x-auto w-[1000px] mb-4"
+        className="overflow-x-auto w-[1250px] mb-4"
       >
-        <div className="flex w-max">
+        <div className="flex w-full">
           {departments.map((dept) => (
             <button
               key={dept.id}

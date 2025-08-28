@@ -3,7 +3,6 @@ import {
   FiBarChart2,
   FiUsers,
   FiUserCheck,
-  FiBriefcase,
   FiCalendar,
   FiFileText,
   FiDollarSign,
@@ -39,7 +38,7 @@ export const sidebarConfig = {
 
   [ROLES.DOCTOR]: [
     { label: "Пациенты", path: "/DactorPatients", icon: FiUsers },
-    { label: "Записи", path: "/appointments", icon: FiCalendar },
+    { label: "Управление Календарь", path: "/calendar", icon: FiCalendar },
     {
       label: "Мой профиль",
       path: "/profile",
