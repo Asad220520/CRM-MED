@@ -9,6 +9,8 @@ import {
 import Select from "../../../components/ui/Select";
 import Calendar from "../../../components/ui/Calendar";
 import LoadingSkeleton from "../../../components/ui/LoadingSkeleton";
+import { downloadExcel } from "../../../redux/excelReport";
+import Button from "../../../components/ui/Button";
 
 const ReportExact = () => {
   const dispatch = useDispatch();
@@ -18,6 +20,7 @@ const ReportExact = () => {
   const { filters, appointments, totals, loading, error } = useSelector(
     (state) => state.report
   );
+  const excelLoading = useSelector((state) => state.excel.loading);
 
   // Форматируем валюту
   const formatCurrency = (amount) =>
@@ -32,7 +35,20 @@ const ReportExact = () => {
       "ru-RU"
     );
   };
-
+  const handleDownloadExact = () => {
+    dispatch(
+      downloadExcel({
+        endpoint: "/en/report/exact/",
+        paramsObj: {
+          doctor: filters.doctor || "",
+          department: filters.department || "",
+          date: filters.date || "",
+          export: "excel",
+          filename: "exact.xlsx",
+        },
+      })
+    );
+  };
   // Загружаем всех докторов один раз при монтировании
   useEffect(() => {
     dispatch(fetchDoctors());
@@ -69,7 +85,8 @@ const ReportExact = () => {
       dispatch(setFilter({ key: "doctor", value: "" })); // сброс выбранного врача
     }
   };
-  if (loading) return <LoadingSkeleton />;
+
+  if (loading || excelLoading) return <LoadingSkeleton />;
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -78,7 +95,7 @@ const ReportExact = () => {
         <Select
           value={filters.department}
           onChange={(e) => handleFilterChange("department", e.target.value)}
-          searchable={true} // если хочешь поиск по отделениям
+          searchable={true}
           options={departments.map((d) => ({
             value: d.id,
             label: d.department_name,
@@ -102,6 +119,14 @@ const ReportExact = () => {
           handleFilterChange={handleFilterChange}
           mode="filter"
         />
+        <Button
+          onClick={handleDownloadExact}
+          variant="excel"
+          size="md"
+          loading={excelLoading}
+        >
+          Скачать Excel
+        </Button>
       </div>
 
       {/* Заголовок */}
@@ -172,13 +197,7 @@ const ReportExact = () => {
                     {a.service_type?.type}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`text-sm ${
-                        a.payment_type_display === "Cash"
-                          ? "text-gray-900"
-                          : "text-blue-600"
-                      }`}
-                    >
+                    <span className={`text-sm text-gray-900`}>
                       {a.payment_type_display === "Cash"
                         ? "Наличные"
                         : "Безналичный"}

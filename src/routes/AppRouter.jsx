@@ -3,9 +3,7 @@ import MainLayout from "../layout/MainLayout";
 
 import NotFoundPage from "../pages/NotFoundPage";
 import PatientsPage from "../features/patients/pages/PatientsPage";
-import AppointmentsPage from "../features/doctorAppointments/pages/DoctorAppointmentsPage";
 import CalendarPage from "../features/calendar/pages/CalendarPage";
-import DoctorAppointmentsPage from "../features/doctorAppointments/pages/DoctorAppointmentsPage";
 import DoctorsPage from "../features/doctors/pages/DoctorsPage";
 import AnalyticsPage from "../features/analytics/pages/AnalyticsPage";
 import ReportsPage from "../features/reports/pages/ReportsPage";
@@ -67,15 +65,6 @@ function AppRouter() {
           element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
               <CalendarPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/doctor-appointments"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-              <DoctorAppointmentsPage />
             </ProtectedRoute>
           }
         />
@@ -166,15 +155,6 @@ function AppRouter() {
         />
 
         <Route
-          path="/doctor-appointments"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-              <DoctorAppointmentsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
           path="/doctors"
           element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
@@ -229,14 +209,6 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/appointments"
-          element={
-            <ProtectedRoute allowedRoles={[ROLES.RECEPTION, ROLES.DOCTOR]}>
-              <AppointmentsPage />
-            </ProtectedRoute>
-          }
-        />
 
         <Route
           path="/calendar"
@@ -249,7 +221,7 @@ function AppRouter() {
         <Route
           path="/notification"
           element={
-            <ProtectedRoute allowedRoles={[ROLES.RECEPTION, ROLES.DOCTOR]}>
+            <ProtectedRoute allowedRoles={[ROLES.DOCTOR]}>
               <Doctor />
             </ProtectedRoute>
           }
