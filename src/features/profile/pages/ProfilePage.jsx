@@ -9,12 +9,15 @@ import { useNavigate } from "react-router-dom";
 const ProfilePage = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+
+  
   const [loading, setLoading] = useState(true);
   const nav = useNavigate();
   const id = localStorage.getItem("id");
+
   async function getProfile() {
     try {
-      const res = await fetchWithAuth(`${API_BASE_URL}/en/receptionist/${id}/`);
+      const res = await fetchWithAuth(`${API_BASE_URL}/en/doctor/${id}/`);
       if (!res.ok) throw new Error(`Ошибка ${res.status}`);
       const doctor = await res.json();
       setData(doctor);
