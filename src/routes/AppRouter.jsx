@@ -20,6 +20,8 @@ import DoctorCreatePage from "../features/doctors/pages/DoctorCreatePage";
 import DactorPatients from "../features/doctors/doctorPatients/DactorPatients";
 import EditPatientPage from "../features/patients/pages/PatientTabs";
 import Doctor from "../features/doctors/components/Doctor";
+import DoctorEdit from "../features/doctors/pages/DoctorEdit";
+import ResetPasswordPage from "../features/auth/ResetPasswordPage";
 
 function AppRouter() {
   return (
@@ -30,6 +32,7 @@ function AppRouter() {
       {/* Login page */}
       <Route path="/login" element={<Login />} />
 
+      <Route path="/resetPassword" element={<ResetPasswordPage />} />
       {/* Main app layout */}
       <Route element={<MainLayout />}>
         <Route
@@ -47,7 +50,17 @@ function AppRouter() {
           path="/doctorcreate"
           element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
-              {<DoctorCreatePage />}
+              <DoctorCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctorEdit/:id"
+          element={
+            <ProtectedRoute
+              allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION, ROLES.DOCTOR]}
+            >
+              <DoctorEdit />
             </ProtectedRoute>
           }
         />
@@ -63,7 +76,9 @@ function AppRouter() {
         <Route
           path="/calendar"
           element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+            <ProtectedRoute
+              allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION, ROLES.DOCTOR]}
+            >
               <CalendarPage />
             </ProtectedRoute>
           }
@@ -132,7 +147,15 @@ function AppRouter() {
           path="/doctorcreate"
           element={
             <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
-              {<DoctorCreatePage />}
+              <DoctorCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctorEdit/:id"
+          element={
+            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+              <DoctorEdit />
             </ProtectedRoute>
           }
         />
@@ -148,7 +171,9 @@ function AppRouter() {
         <Route
           path="/calendar"
           element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+            <ProtectedRoute
+              allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION, ROLES.DOCTOR]}
+            >
               <CalendarPage />
             </ProtectedRoute>
           }
@@ -213,7 +238,9 @@ function AppRouter() {
         <Route
           path="/calendar"
           element={
-            <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION]}>
+            <ProtectedRoute
+              allowedRoles={[ROLES.ADMIN, ROLES.RECEPTION, ROLES.DOCTOR]}
+            >
               <CalendarPage />
             </ProtectedRoute>
           }

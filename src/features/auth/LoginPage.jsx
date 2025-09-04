@@ -10,7 +10,7 @@ function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const nav = useNavigate();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -35,6 +35,7 @@ function LoginPage() {
       });
 
       const data = await response.json();
+      console.log(data);
 
       if (!response.ok) {
         throw new Error(
@@ -49,6 +50,7 @@ function LoginPage() {
       // Сохраняем токены
       localStorage.setItem("access", data.access);
       localStorage.setItem("refresh", data.refresh);
+      localStorage.setItem("id", data.user.id);
 
       // Берём роль из ответа бэка
       const role = (data.user.role || data.user.username || "").toLowerCase();
@@ -67,7 +69,7 @@ function LoginPage() {
   return (
     <div className="flex h-screen">
       {/* Левая часть */}
-      <div className="w-[40%] relative">
+      <div className="w-[45%] relative">
         <img
           src={loginbg}
           alt="login background"
@@ -163,7 +165,12 @@ function LoginPage() {
           {error && (
             <p className="text-red-500 text-center mb-6 text-sm">{error}</p>
           )}
-
+          <p
+            onClick={() => nav("/resetPassword")}
+            className="text-blue-500 text-center mb-6 text-1xl"
+          >
+            Забыли пароль!
+          </p>
           {/* Кнопка */}
           <Button
             type="submit"
