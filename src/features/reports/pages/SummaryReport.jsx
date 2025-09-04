@@ -40,7 +40,7 @@ const SummaryReport = () => {
       }
 
       const response = await fetch(
-        `${API_BASE_URL}/en/report/summary/?${params.toString()}`,
+        `${API_BASE_URL}/ru/report/summary/?${params.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -64,7 +64,7 @@ const SummaryReport = () => {
   const handleDownloadSummary = () => {
     dispatch(
       downloadExcel({
-        endpoint: "/en/report/summary/",
+        endpoint: "/ru/report/summary/",
         paramsObj: {
           date_from: dateFrom,
           date_to: dateTo,

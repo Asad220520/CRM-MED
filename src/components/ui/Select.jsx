@@ -87,9 +87,9 @@ export default function Select({
               </div>
             )}
             {filteredOptions.length > 0 ? (
-              filteredOptions.map((option) => (
+              filteredOptions.map((option , index) => (
                 <div
-                  key={option.value}
+                  key={option.value || index}
                   onClick={() => handleSelect(option)}
                   className={`px-4 py-2 text-sm cursor-pointer ${
                     option.value === value

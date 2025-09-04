@@ -154,7 +154,7 @@ export default function DoctorList() {
   return (
     <div className="w-full mx-auto p-4">
       {/* Фильтры */}
-      <div className="flex flex-wrap gap-4 mb-4 items-center">
+      <div className="flex flex-wrap gap-4 mb-4 items-center border-b pb-6 border-gray-200">
         <h1 className="text-[22px] font-[500] flex-1">Список врачей</h1>
         <input
           type="text"
@@ -167,14 +167,14 @@ export default function DoctorList() {
           value={selectedDepartment || "all"}
           onChange={(e) => setSelectedDepartment(e.target.value)}
           options={[
-            { value: "all", label: "Все отделы" },
             ...departments.map((dept) => ({ value: dept, label: dept })),
           ]}
           searchable={true}
+          placeholder="Все отделы"
         />
 
         <Button
-          onClick={() => navigate("/doctorCreatePage")}
+          onClick={() => navigate("/doctorCreate")}
           startIcon={FiPlus}
         >
           Добавить врача
@@ -193,7 +193,7 @@ export default function DoctorList() {
                 key={doc.id}
                 doc={doc}
                 onDelete={handleDeleteConfirm}
-                onEdit={(d) => navigate(`/doctorEditPage/${d.id}`)}
+                onEdit={(d) => navigate(`/doctorEdit/${d.id}`)}
               />
             ))}
             {filteredDoctors.length === 0 && (
