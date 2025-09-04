@@ -9,8 +9,10 @@ import { useNavigate } from "react-router-dom";
 const ProfilePage = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+
+  
   const [loading, setLoading] = useState(true);
-  const nav = useNavigate()
+  const nav = useNavigate();
   const id = localStorage.getItem("id");
 
   async function getProfile() {
@@ -45,7 +47,10 @@ const ProfilePage = () => {
             alt={data.username}
             className="w-26 h-26 rounded-full object-cover border-4 border-[#d7d0f7]"
           />
-          <button onClick={() => nav(`/doctorEdit/${id}`) } className="absolute bottom-1 right-1 bg-[#d7d0f7] text-black p-2  rounded-full shadow-md">
+          <button
+            onClick={() => nav(`/doctorEdit/${id}`)}
+            className="absolute bottom-1 right-1 bg-[#d7d0f7] text-black p-2  rounded-full shadow-md"
+          >
             <FiEdit />
           </button>
         </div>
