@@ -1,16 +1,7 @@
-// =========================
-// src/features/calendar/hooks/useAppointments.js
-// =========================
 import { useEffect, useMemo, useState } from "react";
 import { asText } from "../helpers/text";
 import { apiListAppointments } from "../api";
 
-/**
- * @param {object} opts
- * @param {string=} opts.doctorId   - если задан, грузим только записи этого врача
- * @param {boolean=} opts.readOnly  - флаг для UI (например, отключить DnD/resize)
- * @param {number=} opts.refreshKey - увеличивай, чтобы форс-рефетч
- */
 export default function useAppointments({
   doctorId,
   readOnly = false,
@@ -20,7 +11,6 @@ export default function useAppointments({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // загрузка списка (GET /en/calendar/?doctorId=...)
   useEffect(() => {
     const ac = new AbortController();
     (async () => {
@@ -32,9 +22,8 @@ export default function useAppointments({
         });
         setAppointments(Array.isArray(data) ? data : []);
       } catch (e) {
-        if (e.name !== "AbortError") {
+        if (e.name !== "AbortError")
           setError(e?.message || "Не удалось загрузить");
-        }
       } finally {
         setLoading(false);
       }
@@ -42,7 +31,6 @@ export default function useAppointments({
     return () => ac.abort();
   }, [doctorId, refreshKey]);
 
-  // опции для фильтров
   const doctorOptions = useMemo(() => {
     const map = new Map();
     appointments.forEach((a) => {
