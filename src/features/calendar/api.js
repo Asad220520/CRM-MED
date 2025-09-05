@@ -5,12 +5,12 @@ import fetchWithAuth from "../../features/auth/fetchWithAuth";
 import API_BASE_URL from "../../../config/api";
 
 /**
- * Бэкенд поддерживает только список календаря (GET /en/calendar/).
- * Создание/редактирование/удаление делаем через редиректы в модуле пациентов.
+ * Список календаря (GET /en/calendar/).
+ * Если передан doctorId — фильтрует по врачу.
  */
-
-export async function apiListAppointments(signal) {
-  const res = await fetchWithAuth(`${API_BASE_URL}/en/calendar/`, {
+export async function apiListAppointments({ signal, params } = {}) {
+  const qs = params ? `?${new URLSearchParams(params)}` : "";
+  const res = await fetchWithAuth(`${API_BASE_URL}/en/calendar/${qs}`, {
     method: "GET",
     signal,
   });

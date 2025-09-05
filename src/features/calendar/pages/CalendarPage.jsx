@@ -30,8 +30,17 @@ import API_BASE_URL from "../../../../config/api";
 import fetchWithAuth from "../../auth/fetchWithAuth";
 import { getPatientId } from "../../../shared/getPatientId";
 
+// Роли и текущий врач
+import { getCurrentUserRole, getCurrentDoctorId } from "../../../lib/auth";
+import { ROLES } from "../../../lib/roles";
+
 export default function WeeklyCalendar() {
   const navigate = useNavigate();
+
+  // Ролевая логика
+  const role = getCurrentUserRole();
+  const isDoctor = role === ROLES.DOCTOR;
+  const doctorId = isDoctor ? getCurrentDoctorId() : undefined;
 
   const {
     appointments,
@@ -41,7 +50,10 @@ export default function WeeklyCalendar() {
     setError,
     doctorOptions,
     departmentOptions,
-  } = useAppointments();
+  } = useAppointments({
+    doctorId, // доктор видит только свои записи
+    readOnly: isDoctor,
+  });
 
   const [selectedDoctor, setSelectedDoctor] = useState("all");
   const [selectedDepartment, setSelectedDepartment] = useState("all");
@@ -67,13 +79,15 @@ export default function WeeklyCalendar() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // ДВОЙНОЙ КЛИК ПО ДНЮ — сразу на /addPatients (без модалки)
+  // ДВОЙНОЙ КЛИК ПО ДНЮ — у доктора запрещено, у остальных -> /addPatients
   const handleCreateInDay = () => {
+    if (isDoctor) return;
     navigate("/addPatients");
   };
 
-  // Удаление пациента — как в PatientList
+  // Удаление пациента — как в PatientList (для доктора недоступно)
   async function handleDelete(patientId) {
+    if (isDoctor) return;
     if (!patientId) return;
     if (!confirm("Удалить пациента? Действие необратимо.")) return;
 
@@ -106,20 +120,28 @@ export default function WeeklyCalendar() {
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <WeekNav weekStart={weekStart} setWeekStart={setWeekStart} />
         <TitleBadge weekStart={weekStart} />
-        <FiltersBar
-          selectedDoctor={selectedDoctor}
-          setSelectedDoctor={setSelectedDoctor}
-          doctorOptions={doctorOptions}
-          selectedDepartment={selectedDepartment}
-          setSelectedDepartment={setSelectedDepartment}
-          departmentOptions={departmentOptions}
-        />
-        <button
-          onClick={() => navigate("/addPatients")}
-          className="ml-auto inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-white shadow-sm hover:bg-indigo-700"
-        >
-          <Plus className="w-4 h-4" /> Добавить запись
-        </button>
+
+        {/* Фильтры врач/отдел скрываем у доктора */}
+        {!isDoctor && (
+          <FiltersBar
+            selectedDoctor={selectedDoctor}
+            setSelectedDoctor={setSelectedDoctor}
+            doctorOptions={doctorOptions}
+            selectedDepartment={selectedDepartment}
+            setSelectedDepartment={setSelectedDepartment}
+            departmentOptions={departmentOptions}
+          />
+        )}
+
+        {/* Кнопка добавления — скрыта у доктора */}
+        {!isDoctor && (
+          <button
+            onClick={() => navigate("/addPatients")}
+            className="ml-auto inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-white shadow-sm hover:bg-indigo-700"
+          >
+            <Plus className="w-4 h-4" /> Добавить запись
+          </button>
+        )}
       </div>
 
       <div
@@ -130,7 +152,7 @@ export default function WeeklyCalendar() {
         <div
           className="relative grid min-w-[1100px] text-sm"
           style={{
-            gridTemplateColumns: "120px repeat(7, minmax(0, 1fr))", // шире левая колонка
+            gridTemplateColumns: "120px repeat(7, minmax(0, 1fr))",
             gridTemplateRows: `72px repeat(${hourSlots.length}, ${ROW_H}px)`,
           }}
         >
@@ -191,7 +213,7 @@ export default function WeeklyCalendar() {
               className={`relative border border-gray-100 ${
                 isTodayInWeek && day === todayIdx ? "bg-indigo-50/30" : ""
               }`}
-              onDoubleClick={() => handleCreateInDay()}
+              onDoubleClick={handleCreateInDay}
             >
               {hourSlots.map((_, r) => (
                 <div
@@ -265,6 +287,7 @@ export default function WeeklyCalendar() {
                       leftPct={leftPct}
                       widthPct={widthPct}
                       onContextMenu={(ev) => {
+                        if (isDoctor) return; // доктор не видит меню
                         ev.preventDefault();
                         const cont = wrapRef.current;
                         if (!cont) return;
@@ -285,14 +308,15 @@ export default function WeeklyCalendar() {
           ))}
         </div>
 
-        {menu && (
+        {/* Меню — только не для доктора */}
+        {!isDoctor && menu && (
           <div
             className="absolute inset-0 z-30"
             onClick={() => setMenu(null)}
             aria-hidden
           />
         )}
-        {menu && (
+        {!isDoctor && menu && (
           <div
             style={{
               position: "absolute",
@@ -313,7 +337,9 @@ export default function WeeklyCalendar() {
 
       {!appointments?.length && (
         <div className="text-center text-sm text-gray-500 mt-4">
-          Записей пока нет. Добавьте приём или измените фильтры.
+          {isDoctor
+            ? "Записей пока нет."
+            : "Записей пока нет. Добавьте приём или измените фильтры."}
         </div>
       )}
     </div>
