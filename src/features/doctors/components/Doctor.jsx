@@ -1,45 +1,46 @@
-import React, { useEffect, useState } from "react";
-import API_BASE_URL from "../../../../config/api";
-import LoadingSkeleton from "../../../components/ui/LoadingSkeleton";
-import Button from "../../../components/ui/Button";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { fetchNotifications } from "../../../redux/notificationsSlice"; // проверь путь
+
+import LoadingSkeleton from "../../../components/ui/LoadingSkeleton"; // проверь путь
+import Button from "../../../components/ui/Button"; // проверь путь
 
 const Doctor = () => {
-  const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
   const nav = useNavigate();
-  const fetchNotifications = async () => {
-    try {
-      const token = localStorage.getItem("access");
-      const response = await fetch(`${API_BASE_URL}/ru/doctor/notification/`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
 
-      if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
-      const data = await response.json();
-      setNotifications(data);
-    } catch (err) {
-      console.error(err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const {
+    items: notifications,
+    loading,
+    error,
+  } = useSelector((state) => state.notifications);
 
   useEffect(() => {
-    fetchNotifications();
-  }, []);
+    dispatch(fetchNotifications());
+  }, [dispatch]);
 
   if (loading) return <LoadingSkeleton />;
 
   return (
     <div className="bg-white h-[85vh] py-6 px-6 rounded-xl shadow space-y-6 shadow-[1px_1px_6px_2px_rgba(128,128,128,0.5)]">
-      <h2 className="text-2xl font-bold mb-5 text-gray-800">Уведомления</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold mb-5 text-gray-800">Уведомления</h2>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => dispatch(fetchNotifications())}
+            className="bg-gray-100 text-gray-700 border border-gray-300"
+          >
+            Обновить
+          </Button>
+          <Button
+            onClick={() => nav(-1)}
+            className="bg-gray-100 text-gray-700 border border-gray-300"
+          >
+            Назад
+          </Button>
+        </div>
+      </div>
 
       {error && <p className="text-red-500">{error}</p>}
       {!error && notifications.length === 0 && (
@@ -58,12 +59,12 @@ const Doctor = () => {
                 <span className="text-blue-600">{notif.appointment_date}</span>{" "}
                 -{" "}
                 <span className="text-gray-600">
-                  {notif.department.department_name}
+                  {notif?.department?.department_name}
                 </span>
               </p>
               <p className="text-gray-600">Пациент: {notif.name}</p>
               <p className="text-gray-600">
-                Регистратор: {notif.registrar.username}
+                Регистратор: {notif?.registrar?.username}
               </p>
             </div>
             <div className="mt-2 md:mt-0">
