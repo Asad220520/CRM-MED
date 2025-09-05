@@ -17,6 +17,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
+    "framer-motion": "^12.23.12",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.538.0",
     "react": "^19.1.0",
