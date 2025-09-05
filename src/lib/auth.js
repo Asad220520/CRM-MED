@@ -13,4 +13,10 @@ export function logout() {
   localStorage.removeItem("access");
   localStorage.removeItem("refresh");
   localStorage.removeItem("role");
+  localStorage.removeItem("doctorId");
+}
+
+// ID текущего врача (если авторизован как doctor)
+export function getCurrentDoctorId() {
+  return localStorage.getItem("doctorId") || null;
 }
