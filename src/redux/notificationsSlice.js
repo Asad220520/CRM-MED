@@ -1,42 +1,73 @@
 // =========================
-// src/redux/notificationsSlice.js (mock version)
+// src/redux/notificationsSlice.js
 // =========================
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import fetchWithAuth from "../features/auth/fetchWithAuth";
+import API_BASE_URL from "../../config/api";
 
 const initialState = {
-  items: [], // список уведомлений
+  items: [],
   error: null,
+  doctorPolling: false,
 };
 
-// хелпер для генерации фейковых уведомлений
-function makeMockNotification(i) {
+let doctorInterval = null;
+
+function shapeDoctorNotif(n) {
   return {
-    id: Date.now() + i,
-    title: "Новая запись пациента",
-    message: `Пациент #${1000 + i} записан к врачу`,
-    read: false,
-    created_at: new Date().toISOString(),
+    id: n.id,
+    appointment_date: n.appointment_date,
+    department_name: n?.department?.department_name || "",
+    patientName: n?.name || n?.patient?.name || "",
+    registrar: n?.registrar?.username || "",
+    read: Boolean(n.read),
+    created_at: n.created_at || n.appointment_date || null,
+    _raw: n,
   };
 }
 
-// thunk запускает mock-polling
-export const startMockNotifications = createAsyncThunk(
-  "notifications/mock",
-  async (_, { dispatch }) => {
-    let counter = 1;
-
-    function pushFake() {
-      const newNotif = makeMockNotification(counter++);
-      dispatch(notificationsSlice.actions.addNotification(newNotif));
+export const fetchDoctorNotificationsOnce = createAsyncThunk(
+  "notifications/fetchDoctorOnce",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await fetchWithAuth(
+        `${API_BASE_URL}/ru/doctor/notification/`,
+        { method: "GET" }
+      );
+      if (!res.ok) throw new Error(`Ошибка ${res.status}`);
+      const data = await res.json();
+      const shaped = Array.isArray(data) ? data.map(shapeDoctorNotif) : [];
+      shaped.sort(
+        (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
+      );
+      return shaped;
+    } catch (e) {
+      return rejectWithValue(e?.message || "Не удалось загрузить уведомления");
     }
+  }
+);
 
-    // сразу создаём одно уведомление
-    pushFake();
+export const startDoctorNotifications = createAsyncThunk(
+  "notifications/startDoctor",
+  async (_, { dispatch, getState }) => {
+    const { doctorPolling } = getState().notifications || {};
+    if (doctorPolling) return;
+    await dispatch(fetchDoctorNotificationsOnce());
+    doctorInterval = setInterval(() => {
+      dispatch(fetchDoctorNotificationsOnce());
+    }, 30000);
+    dispatch(notificationsSlice.actions.setDoctorPolling(true));
+  }
+);
 
-    // каждые 20 сек будет приходить новое
-    const interval = setInterval(pushFake, 20000);
-
-    return () => clearInterval(interval);
+export const stopDoctorNotifications = createAsyncThunk(
+  "notifications/stopDoctor",
+  async (_, { dispatch }) => {
+    if (doctorInterval) {
+      clearInterval(doctorInterval);
+      doctorInterval = null;
+    }
+    dispatch(notificationsSlice.actions.setDoctorPolling(false));
   }
 );
 
@@ -44,6 +75,12 @@ const notificationsSlice = createSlice({
   name: "notifications",
   initialState,
   reducers: {
+    setDoctorPolling(state, action) {
+      state.doctorPolling = !!action.payload;
+    },
+    setNotifications(state, action) {
+      state.items = Array.isArray(action.payload) ? action.payload : [];
+    },
     addNotification(state, action) {
       state.items.unshift(action.payload);
     },
@@ -57,9 +94,30 @@ const notificationsSlice = createSlice({
     clear(state) {
       state.items = [];
     },
+    setError(state, action) {
+      state.error = action.payload || null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchDoctorNotificationsOnce.fulfilled, (state, action) => {
+        state.items = action.payload || [];
+        state.error = null;
+      })
+      .addCase(fetchDoctorNotificationsOnce.rejected, (state, action) => {
+        state.error = action.payload || "Ошибка загрузки";
+      });
   },
 });
 
-export const { addNotification, markAllRead, markRead, clear } =
-  notificationsSlice.actions;
+export const {
+  setDoctorPolling,
+  setNotifications,
+  addNotification,
+  markAllRead,
+  markRead,
+  clear,
+  setError,
+} = notificationsSlice.actions;
+
 export default notificationsSlice.reducer;
