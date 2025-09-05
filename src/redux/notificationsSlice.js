@@ -1,65 +1,75 @@
-// =========================
-// src/redux/notificationsSlice.js (mock version)
-// =========================
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import API_BASE_URL from "../../config/api"; // проверь путь под свой проект
 
-const initialState = {
-  items: [], // список уведомлений
-  error: null,
-};
+// === Thunk: загрузка уведомлений с реального API ===
+export const fetchNotifications = createAsyncThunk(
+  "notifications/fetch",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("access");
+      const res = await fetch(`${API_BASE_URL}/ru/doctor/notification/`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-// хелпер для генерации фейковых уведомлений
-function makeMockNotification(i) {
-  return {
-    id: Date.now() + i,
-    title: "Новая запись пациента",
-    message: `Пациент #${1000 + i} записан к врачу`,
-    read: false,
-    created_at: new Date().toISOString(),
-  };
-}
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        return rejectWithValue(
+          `Ошибка: ${res.status}${text ? ` — ${text}` : ""}`
+        );
+      }
 
-// thunk запускает mock-polling
-export const startMockNotifications = createAsyncThunk(
-  "notifications/mock",
-  async (_, { dispatch }) => {
-    let counter = 1;
-
-    function pushFake() {
-      const newNotif = makeMockNotification(counter++);
-      dispatch(notificationsSlice.actions.addNotification(newNotif));
+      const data = await res.json();
+      // ожидаем массив уведомлений с серверной структурой
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      return rejectWithValue(e?.message || "Неизвестная ошибка запроса");
     }
-
-    // сразу создаём одно уведомление
-    pushFake();
-
-    // каждые 20 сек будет приходить новое
-    const interval = setInterval(pushFake, 20000);
-
-    return () => clearInterval(interval);
   }
 );
+
+const initialState = {
+  items: [],
+  loading: false,
+  error: null,
+};
 
 const notificationsSlice = createSlice({
   name: "notifications",
   initialState,
   reducers: {
-    addNotification(state, action) {
-      state.items.unshift(action.payload);
-    },
-    markAllRead(state) {
-      state.items.forEach((n) => (n.read = true));
-    },
+    // Пометить одно уведомление прочитанным (локально)
     markRead(state, action) {
       const it = state.items.find((x) => x.id === action.payload);
       if (it) it.read = true;
     },
+    // Пометить все прочитанными (локально)
+    markAllRead(state) {
+      state.items.forEach((n) => (n.read = true));
+    },
+    // Очистить список (локально)
     clear(state) {
       state.items = [];
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchNotifications.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchNotifications.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload || [];
+      })
+      .addCase(fetchNotifications.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Не удалось загрузить уведомления";
+      });
+  },
 });
 
-export const { addNotification, markAllRead, markRead, clear } =
-  notificationsSlice.actions;
 export default notificationsSlice.reducer;

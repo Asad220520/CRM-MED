@@ -1,6 +1,4 @@
-// =========================
-// src/layout/Header.jsx (mock notifications)
-// =========================
+// src/layout/Header.jsx
 import React, { useEffect, useMemo, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { FiArrowLeft, FiBell } from "react-icons/fi";
@@ -8,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { getCurrentUserRole } from "../lib/auth";
 import { ROLES } from "../lib/roles";
-import { startMockNotifications } from "../redux/notificationsSlice";
+import { fetchNotifications } from "../redux/notificationsSlice"; // ✅ реальный thunk
 
 function Header() {
   const navigate = useNavigate();
@@ -59,9 +57,15 @@ function Header() {
     lastCountRef.current = unread;
   }, [notifItems, playDing]);
 
-  // запускаем mock polling уведомлений
+  // ⬇️ теперь вместо startMockNotifications делаем реальный polling
   useEffect(() => {
-    dispatch(startMockNotifications());
+    dispatch(fetchNotifications()); // сразу при маунте
+
+    const interval = setInterval(() => {
+      dispatch(fetchNotifications());
+    }, 20000); // каждые 20 секунд, как раньше
+
+    return () => clearInterval(interval);
   }, [dispatch]);
 
   // заголовки страниц
