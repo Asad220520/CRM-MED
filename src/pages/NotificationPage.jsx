@@ -3,7 +3,7 @@
 // =========================
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { markAllRead, markRead, clear } from "../redux/notificationsSlice";
+import { markAllRead, markRead, clear } from "@/redux/notificationsSlice";
 
 function NotificationPage() {
   const dispatch = useDispatch();

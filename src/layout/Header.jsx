@@ -1,5 +1,5 @@
 // =========================
-// src/layout/Header.jsx
+// src/layout/Header.jsx (mock notifications)
 // =========================
 import React, { useEffect, useMemo, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -8,22 +8,26 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { getCurrentUserRole } from "../lib/auth";
 import { ROLES } from "../lib/roles";
-import { startDoctorNotifications } from "../redux/notificationsSlice";
+import { startMockNotifications } from "../redux/notificationsSlice";
 
 function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
-  const dispatch = useDispatch();
 
+  // роль пользователя
   const userRole = getCurrentUserRole();
+  const isAdmin = userRole === ROLES.ADMIN;
+  const isReceptionist =
+    userRole === ROLES.RECEPTION || userRole === "RECEPTIONIST";
   const isDoctor = userRole === ROLES.DOCTOR;
 
+  // redux notifications
+  const dispatch = useDispatch();
   const { items: notifItems = [] } = useSelector((s) => s.notifications || {});
-  const { user } = useSelector((s) => s.auth || {});
   const unreadCount = notifItems.filter((n) => !n.read).length;
 
-  // звук при приходе новых
+  // звук при новых уведомлениях
   const lastCountRef = useRef(0);
   const playDing = useMemo(() => {
     return () => {
@@ -49,15 +53,18 @@ function Header() {
 
   useEffect(() => {
     const unread = notifItems.filter((n) => !n.read).length;
-    if (unread > lastCountRef.current) playDing();
+    if (unread > lastCountRef.current) {
+      playDing();
+    }
     lastCountRef.current = unread;
   }, [notifItems, playDing]);
 
-  // реальный поллинг только врачу
+  // запускаем mock polling уведомлений
   useEffect(() => {
-    if (isDoctor) dispatch(startDoctorNotifications());
-  }, [dispatch, isDoctor]);
+    dispatch(startMockNotifications());
+  }, [dispatch]);
 
+  // заголовки страниц
   const routeTitles = {
     "/home": "Записи клиентов",
     "/calendar": "Календарь",
@@ -78,11 +85,13 @@ function Header() {
     pageTitle = `Информация о пациенте ${id || ""}`;
   }
 
-  const avatarUrl =
-    user?.avatar || user?.profile_image || "/default-avatar.png";
+  const handleBellClick = () => {
+    navigate("/notification");
+  };
 
   return (
     <header className="flex items-center justify-between h-[65px] px-6 py-2 border-b border-gray-200 bg-white">
+      {/* Левая часть */}
       <div className="flex items-center gap-4">
         <button
           onClick={() => navigate(-1)}
@@ -94,11 +103,12 @@ function Header() {
         <h1 className="text-[20px] text-gray-700">{pageTitle}</h1>
       </div>
 
+      {/* Правая часть */}
       <div className="flex items-center gap-4">
-        {isDoctor && (
+        {(isReceptionist || isDoctor) && (
           <>
             <button
-              onClick={() => navigate("/notification")}
+              onClick={handleBellClick}
               className="relative h-12 w-12 border flex items-center justify-center border-gray-300 rounded-full hover:bg-blue-50 transition-colors text-gray-600"
               aria-label="Уведомления"
             >
@@ -115,13 +125,10 @@ function Header() {
 
         <div className="flex items-center gap-2">
           <img
-            src={avatarUrl}
-            alt={user?.username || "Аватар пользователя"}
+            src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHVzZXJ8ZW58MHx8MHx8fDA%3D"
+            alt="Аватар пользователя"
             className="h-12 w-12 rounded-full object-cover"
           />
-          <span className="text-sm font-medium text-gray-700">
-            {user?.username || ""}
-          </span>
         </div>
       </div>
     </header>

@@ -1,30 +1,21 @@
-// =========================
-// src/features/auth/LoginPage.jsx
-// =========================
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-
 import API_BASE_URL from "../../../config/api";
 import Button from "../../components/ui/Button";
 import loginbg from "../../assets/loginbg.png";
-
-import { setCredentials } from "../../redux/authSlice";
-import { ROLES } from "../../lib/roles";
-import { shapeUserFromBackend } from "./shapeUser";
 
 function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const nav = useNavigate();
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
 
-  const from = location.state?.from?.pathname;
+  // Куда редиректить после логина (либо на предыдущую страницу, либо /patients)
+  const from = location.state?.from?.pathname || "/patients";
 
   const {
     register,
@@ -43,44 +34,33 @@ function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      let data;
-      try {
-        data = await response.json();
-      } catch {
-        data = null;
-      }
+      const data = await response.json();
+      console.log(data);
 
       if (!response.ok) {
         throw new Error(
-          data?.detail || data?.message || "Неверный логин или пароль"
+          data.detail || data.message || "Неверный логин или пароль"
         );
       }
-      if (!data?.access || !data?.refresh || !data?.user) {
+
+      if (!data.access || !data.refresh || !data.user) {
         throw new Error("Неверный формат ответа от сервера");
       }
 
-      // 👇 нормализуем пользователя под фронт
-      const shaped = shapeUserFromBackend(data.user);
+      // Сохраняем токены
+      localStorage.setItem("access", data.access);
+      localStorage.setItem("refresh", data.refresh);
+      localStorage.setItem("id", data.user.id);
 
-      dispatch(
-        setCredentials({
-          user: shaped,
-          access: data.access,
-          refresh: data.refresh,
-        })
-      );
+      // Берём роль из ответа бэка
+      const role = (data.user.role || data.user.username || "").toLowerCase();
+      localStorage.setItem("role", role);
 
-      // совместимость с кодом, который читает напрямую из localStorage
-      if (shaped?.id != null) localStorage.setItem("id", String(shaped.id));
-      if (shaped?.role) localStorage.setItem("role", shaped.role);
-      if (shaped?.doctorId)
-        localStorage.setItem("doctorId", String(shaped.doctorId));
-
-      const fallback =
-        shaped?.role === ROLES.DOCTOR ? "/calendar" : "/patients";
-      navigate(from || fallback, { replace: true });
+      // Редиректим
+      navigate(from, { replace: true });
     } catch (err) {
-      setError(err?.message || "Ошибка входа. Проверьте email и пароль.");
+      console.error("Login error:", err);
+      setError(err.message || "Ошибка входа. Проверьте email и пароль.");
     } finally {
       setLoading(false);
     }
@@ -106,6 +86,7 @@ function LoginPage() {
         </div>
       </div>
 
+      {/* Пробел */}
       <div style={{ width: "40px" }} />
 
       {/* Правая часть */}
@@ -162,13 +143,13 @@ function LoginPage() {
                 }`}
                 {...register("password", {
                   required: "Пароль обязателен",
-                  minLength: { value: 5, message: "Минимум 5 символов" },
+                  minLength: { value: 1, message: "Минимум 5 символов" },
                 })}
               />
               <button
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                onClick={() => setShowPass((p) => !p)}
+                onClick={() => setShowPass((prev) => !prev)}
               >
                 {showPass ? <FiEyeOff size={20} /> : <FiEye size={20} />}
               </button>
@@ -184,14 +165,13 @@ function LoginPage() {
           {error && (
             <p className="text-red-500 text-center mb-6 text-sm">{error}</p>
           )}
-
           <p
-            onClick={() => navigate("/resetPassword")}
-            className="text-blue-500 text-center mb-6 text-1xl cursor-pointer"
+            onClick={() => nav("/resetPassword")}
+            className="text-blue-500 text-center mb-6 text-1xl"
           >
             Забыли пароль!
           </p>
-
+          {/* Кнопка */}
           <Button
             type="submit"
             variant="primary"
