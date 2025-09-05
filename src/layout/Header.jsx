@@ -1,14 +1,13 @@
 // =========================
-// src/layout/Header.jsx
+// src/layout/Header.jsx (mock notifications)
 // =========================
 import React, { useEffect, useMemo, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { FiArrowLeft, FiBell } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 
-import { getCurrentUserRole, getCurrentDoctorId } from "../lib/auth";
+import { getCurrentUserRole } from "../lib/auth";
 import { ROLES } from "../lib/roles";
-// import { startPollingNotifications } from "../redux/notificationsSlice"; //пока бекент не готов заглушка койуп турабыз если че кылса анан все ок
 import { startMockNotifications } from "../redux/notificationsSlice";
 
 function Header() {
@@ -16,7 +15,7 @@ function Header() {
   const location = useLocation();
   const { id } = useParams();
 
-  // роли
+  // роль пользователя
   const userRole = getCurrentUserRole();
   const isAdmin = userRole === ROLES.ADMIN;
   const isReceptionist =
@@ -60,19 +59,10 @@ function Header() {
     lastCountRef.current = unread;
   }, [notifItems, playDing]);
 
-  // запускаем polling
+  // запускаем mock polling уведомлений
   useEffect(() => {
-    if (isDoctor) {
-      const doctorId = getCurrentDoctorId();
-      if (doctorId) {
-        dispatch(startPollingNotifications({ doctorId }));
-      }
-    } else if (isAdmin || isReceptionist) {
-      // dispatch(startPollingNotifications({}));
-      dispatch(startMockNotifications());
-
-    }
-  }, [isDoctor, isAdmin, isReceptionist, dispatch]);
+    dispatch(startMockNotifications());
+  }, [dispatch]);
 
   // заголовки страниц
   const routeTitles = {
@@ -115,7 +105,7 @@ function Header() {
 
       {/* Правая часть */}
       <div className="flex items-center gap-4">
-        {(isReceptionist || isDoctor || isAdmin) && (
+        {(isReceptionist || isDoctor) && (
           <>
             <button
               onClick={handleBellClick}
