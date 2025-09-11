@@ -1,6 +1,5 @@
 import React from "react";
 import Button from "../../../components/ui/Button";
-import AddPatientForm from "../addPatients/AddPatients";
 import { useNavigate } from "react-router-dom";
 import PatientList from "../components/PatientList";
 

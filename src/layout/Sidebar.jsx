@@ -7,21 +7,24 @@ function Sidebar() {
   const links = sidebarConfig[role] || [];
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    navigate("/login"); // или "/"
-  };
-
   const topLinks = links.filter((link) => !link.isBottom);
   const bottomLinks = links.filter((link) => link.isBottom);
 
+  // Очищаем данные при логауте
+  function logout() {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("role");
+    localStorage.removeItem("id");
+    localStorage.removeItem("profile_image");
+    navigate("/login");
+  }
   const renderLink = ({ path, label, icon: Icon, action }) => {
     if (action === "logout") {
       return (
         <button
           key="logout"
-          onClick={handleLogout}
+          onClick={() => logout()}
           className="flex w-full items-center gap-3 px-4 py-2 rounded hover:text-blue-500 hover:bg-blue-50 transition-colors text-gray-700"
         >
           {Icon && <Icon size={20} />}
@@ -29,7 +32,6 @@ function Sidebar() {
         </button>
       );
     }
-
     return (
       <li key={path}>
         <NavLink
@@ -43,7 +45,7 @@ function Sidebar() {
           }
         >
           {Icon && <Icon size={20} />}
-          <span>{label.slice(0,16)}</span>
+          <span>{label.slice(0, 16)}</span>
         </NavLink>
       </li>
     );

@@ -20,6 +20,7 @@ function DoctorRow({ doc, onEdit, onDelete }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+console.log(doc);
 
   return (
     <tr ref={rowRef} className="transition-colors hover:bg-gray-50">

@@ -9,8 +9,10 @@ function ProtectedRoute({ children, allowedRoles }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  
   // Если роль не подходит — на главную
   const userRole = getCurrentUserRole();
+  console.log(allowedRoles,userRole);
   if (!userRole || !allowedRoles.includes(userRole)) {
     return <Navigate to="/" replace />;
   }
