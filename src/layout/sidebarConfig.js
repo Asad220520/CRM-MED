@@ -29,7 +29,7 @@ export const sidebarConfig = {
     { label: "Прайс-лист", path: "/price-list", icon: FiDollarSign },
     {
       label: "Мой профиль",
-      path: "/profile",
+      path: "/profileReception",
       icon: FiUserCheck,
       isBottom: true,
     },
@@ -41,7 +41,7 @@ export const sidebarConfig = {
     { label: "Управление Календарь", path: "/calendar", icon: FiCalendar },
     {
       label: "Мой профиль",
-      path: "/profile",
+      path: "/profileDoctor",
       icon: FiUserCheck,
       isBottom: true,
     },

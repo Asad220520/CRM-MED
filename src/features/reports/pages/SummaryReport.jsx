@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 
 // Компонент карточки для каждой метрики
 const SummaryCard = ({ title, value, large }) => (
-  <div className="p-2 w-full sm:w-52 h-30 flex justify-center flex-col border border-gray-200 rounded-lg shadow-sm">
+  <div className="p-2 w-full sm:w-46 h-30 flex justify-center flex-col border border-gray-200 rounded-lg shadow-sm">
     <div className="text-[16px] text-gray-600 mb-1">{title}</div>
     <div className={`font-bold ${large ? "text-2xl" : "text-xl"}`}>
       {value ? `${value.toLocaleString("ru-RU")} c` : "0 c"}
@@ -104,7 +104,7 @@ const SummaryReport = () => {
 
         {/* Кнопка показать все данные */}
         <Button onClick={() => fetchSummaryData(true)}>
-          Показать все данные
+           Все данные
         </Button>
         <Button
           onClick={handleDownloadSummary}

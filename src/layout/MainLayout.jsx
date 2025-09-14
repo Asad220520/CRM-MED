@@ -3,8 +3,8 @@ import Header from "./Header";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const routeTitles = {
+  "/calendar": "Календарь", 
   "/patients": "Записи клиентов",
-  "/calendar": "Календарь",
   "/doctor-records": "Записи врачей",
   "/doctors": "Список врачей",
   "/analytics": "Аналитика",

@@ -6,14 +6,22 @@ import fetchWithAuth from "../../auth/fetchWithAuth";
 import API_BASE_URL from "../../../../config/api";
 import Button from "../../../components/ui/Button";
 import LoadingSkeleton from "../../../components/ui/LoadingSkeleton";
-import { fetchDoctors } from "../../../redux/doctorsSlice";
 import { Paperclip } from "lucide-react";
+
+// ✅ Импортируем наши экшены из depJobRoomSlice
+import {
+  fetchDepartments,
+  fetchJobs,
+  fetchRooms,
+} from "../../../redux/depJobRoomSlice";
 
 export default function DoctorEditPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const doctors = useSelector((state) => state.doctors.doctors || []);
+
+  // ✅ Берём данные из depJobRoomSlice
+  const { departments, jobs, rooms } = useSelector((state) => state.depJobRoom);
 
   const {
     register,
@@ -59,15 +67,18 @@ export default function DoctorEditPage() {
       try {
         setLoading(true);
 
-        // Загружаем врачей
-        await dispatch(fetchDoctors());
+        // ✅ Загружаем справочники
+        await Promise.all([
+          dispatch(fetchDepartments()),
+          dispatch(fetchJobs()),
+          dispatch(fetchRooms()),
+        ]);
 
         // Загружаем данные конкретного врача
         const res = await fetchWithAuth(`${API_BASE_URL}/en/doctor/${id}/`);
         if (!res.ok) throw new Error("Ошибка загрузки врача");
         const data = await res.json();
 
-        console.log("Loaded doctor data:", data); // Для отладки
         setDoctorData(data);
 
         // Устанавливаем значения формы
@@ -76,7 +87,6 @@ export default function DoctorEditPage() {
         setValue("phone", data.phone || "");
         setValue("bonus", data.bonus || 0);
 
-        // Для селектов устанавливаем строковые значения
         setValue("department", data.department ? String(data.department) : "");
         setValue("job_title", data.job_title ? String(data.job_title) : "");
         setValue("room", data.room ? String(data.room) : "");
@@ -90,50 +100,26 @@ export default function DoctorEditPage() {
       }
     }
 
-    if (id) {
-      loadData();
-    }
+    if (id) loadData();
   }, [id, dispatch, setValue]);
 
   if (loading) return <LoadingSkeleton />;
   if (!doctorData) return <div>Врач не найден</div>;
 
-  // Простые опции для селектов
-  const allDepartments = doctors
-    .map((doc) => doc.department)
-    .filter((dep) => dep && dep.id && dep.department_name);
-
-  const uniqueDepartments = allDepartments.filter(
-    (dep, index, arr) => arr.findIndex((d) => d.id === dep.id) === index
-  );
-
-  const departmentOptions = uniqueDepartments.map((dep) => ({
+  // ✅ Формируем опции для селектов из depJobRoomSlice
+  const departmentOptions = (departments || []).map((dep) => ({
     value: String(dep.id),
     label: dep.department_name,
   }));
 
-  const allJobTitles = doctors
-    .map((doc) => doc.job_title)
-    .filter((jt) => jt && jt.id && jt.job_title);
-
-  const uniqueJobTitles = allJobTitles.filter(
-    (jt, index, arr) => arr.findIndex((j) => j.id === jt.id) === index
-  );
-
-  const jobTitleOptions = uniqueJobTitles.map((jt) => ({
+  const jobTitleOptions = (jobs || []).map((jt) => ({
     value: String(jt.id),
     label: jt.job_title,
   }));
 
-  const allRooms = doctors
-    .map((doc) => doc.room)
-    .filter((room) => room !== null && room !== undefined);
-
-  const uniqueRooms = [...new Set(allRooms)].sort((a, b) => a - b);
-
-  const roomOptions = uniqueRooms.map((room) => ({
-    value: String(room),
-    label: `Комната ${room}`,
+  const roomOptions = (rooms || []).map((room) => ({
+    value: String(room.id),
+    label: `Комната ${room.room_number || room}`,
   }));
 
   // Обработчик отправки формы
@@ -142,7 +128,6 @@ export default function DoctorEditPage() {
     try {
       const formData = new FormData();
 
-      // Добавляем только измененные поля
       if (data.username !== doctorData.username) {
         formData.append("username", data.username);
       }
@@ -174,7 +159,6 @@ export default function DoctorEditPage() {
         formData.append("profile_image", file);
       }
 
-      // Проверяем, есть ли изменения
       if ([...formData].length === 0) {
         alert("Нет изменений для сохранения");
         return;
@@ -202,10 +186,10 @@ export default function DoctorEditPage() {
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
-      style={{
+       style={{
         scrollbarWidth: "none",
       }}
+      onSubmit={handleSubmit(onSubmit)}
       className="bg-white py-6 p-12 w-[700px] rounded-xl shadow space-y-6 max-w-lg mx-auto border border-gray-200 overflow-y-auto h-[85vh]"
     >
       {/* Фото */}
@@ -270,10 +254,7 @@ export default function DoctorEditPage() {
 
       {/* Селекты */}
       <InfoField label="Отделение">
-        <select
-          {...register("department")}
-          className="bg-gray-100 w-full px-3 py-2 rounded"
-        >
+        <select {...register("department")} className="bg-gray-100 w-full px-3 py-2 rounded">
           <option value="">Выберите отделение</option>
           {departmentOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -284,10 +265,7 @@ export default function DoctorEditPage() {
       </InfoField>
 
       <InfoField label="Должность">
-        <select
-          {...register("job_title")}
-          className="bg-gray-100 w-full px-3 py-2 rounded"
-        >
+        <select {...register("job_title")} className="bg-gray-100 w-full px-3 py-2 rounded">
           <option value="">Выберите должность</option>
           {jobTitleOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -298,10 +276,7 @@ export default function DoctorEditPage() {
       </InfoField>
 
       <InfoField label="Комната">
-        <select
-          {...register("room")}
-          className="bg-gray-100 w-full px-3 py-2 rounded"
-        >
+        <select {...register("room")} className="bg-gray-100 w-full px-3 py-2 rounded">
           <option value="">Выберите комнату</option>
           {roomOptions.map((option) => (
             <option key={option.value} value={option.value}>

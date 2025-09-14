@@ -31,13 +31,23 @@ function PatientRow({ rec, paymentTypes, onDelete }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const dateStr = new Date(rec.appointment_date).toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
+
+    // "03-07-2025 14:59"
+    const [day, month, yearAndTime] = dateStr.split("-");
+    const [year, time] = yearAndTime.split(" ");
+
+    const date = new Date(`${year}-${month}-${day}T${time}:00`);
+
+    return date.toLocaleString("ru-RU", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   return (
     <tr
@@ -46,7 +56,7 @@ function PatientRow({ rec, paymentTypes, onDelete }) {
         isOpen ? "bg-[#E6F7F8]" : ""
       }`}
     >
-      <td className="p-3">{dateStr}</td>
+      <td className="p-3">{formatDate(rec.appointment_date)}</td>
       <td className="p-3">{rec.name}</td>
       <td className="p-3">{rec.doctor?.username}</td>
       <td className="p-3 flex items-center">
@@ -223,7 +233,7 @@ export default function PatientList() {
       {/* Вкладки департаментов */}
       <div
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        className="overflow-x-auto w-[1250px] mb-4"
+        className="overflow-x-auto w-[1000px] m-auto mb-4"
       >
         <div className="flex w-full">
           {departments.map((dept) => (

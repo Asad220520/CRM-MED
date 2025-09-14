@@ -4,6 +4,7 @@ import doctorsReducer from "./doctorsSlice";
 import departmentReducer from "./departmentSlice";
 import excelReducer from "./excelReport";
 import notificationsReducer from "./notificationsSlice";
+import depJobRoomReducer from "./depJobRoomSlice";
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     department: departmentReducer,
     excel: excelReducer,
     notifications: notificationsReducer,
+    depJobRoom: depJobRoomReducer,
   },
 });
 

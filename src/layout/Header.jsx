@@ -3,22 +3,20 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { FiArrowLeft, FiBell } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
-
+import defaultImg from "../assets/default.png";
 import { getCurrentUserRole } from "../lib/auth";
 import { ROLES } from "../lib/roles";
-import { fetchNotifications } from "../redux/notificationsSlice"; // ✅ реальный thunk
+import { fetchNotifications } from "../redux/notificationsSlice";
 
 function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
-
+  const userImg = localStorage.getItem("profile_image");
   // роль пользователя
   const userRole = getCurrentUserRole();
-  const isAdmin = userRole === ROLES.ADMIN;
-  const isReceptionist =
-    userRole === ROLES.RECEPTION || userRole === "RECEPTIONIST";
   const isDoctor = userRole === ROLES.DOCTOR;
+  const isReception = userRole === ROLES.RECEPTION;
 
   // redux notifications
   const dispatch = useDispatch();
@@ -45,7 +43,9 @@ function Header() {
           g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.05);
           o.stop(ctx.currentTime + 0.08);
         }, 200);
-      } catch {}
+      } catch (error) {
+        console.log(error);
+      }
     };
   }, []);
 
@@ -70,8 +70,8 @@ function Header() {
 
   // заголовки страниц
   const routeTitles = {
-    "/home": "Записи клиентов",
     "/calendar": "Календарь",
+    "/home": "Записи клиентов",
     "/doctor-records": "Записи врачей",
     "/doctor-appointments": "Список врачей",
     "/doctors": "Список врачей",
@@ -109,7 +109,7 @@ function Header() {
 
       {/* Правая часть */}
       <div className="flex items-center gap-4">
-        {(isReceptionist || isDoctor) && (
+        {isDoctor && (
           <>
             <button
               onClick={handleBellClick}
@@ -127,13 +127,15 @@ function Header() {
           </>
         )}
 
-        <div className="flex items-center gap-2">
-          <img
-            src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fHVzZXJ8ZW58MHx8MHx8fDA%3D"
-            alt="Аватар пользователя"
-            className="h-12 w-12 rounded-full object-cover"
-          />
-        </div>
+        {isReception && (
+          <div className="flex items-center gap-2">
+            <img
+              src={`${userImg || defaultImg}`}
+              alt="Аватар пользователя"
+              className="h-12 w-12 rounded-full border-2 border-[#cbd5e1] object-cover"
+            />
+          </div>
+        )}
       </div>
     </header>
   );
